@@ -87,10 +87,10 @@ const Room = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-mono-0">
         <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Connecting to room...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-mono-600 mx-auto" />
+          <p className="text-mono-500">Connecting to room...</p>
         </div>
       </div>
     );
@@ -99,14 +99,14 @@ const Room = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-mono-0">
         <div className="text-center space-y-4 max-w-sm px-4">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-          <h2 className="text-xl font-semibold">{error}</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl font-semibold text-mono-800">{error}</h2>
+          <p className="text-mono-500">
             The room may have been deleted or you may have been banned.
           </p>
-          <Button onClick={() => navigate('/')} variant="outline">
+          <Button onClick={() => navigate('/')} variant="outline" className="border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800">
             Go Home
           </Button>
         </div>
@@ -117,7 +117,7 @@ const Room = () => {
   if (!room) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-mono-0">
       {/* Header */}
       <RoomHeader
         roomCode={room.code}
@@ -132,7 +132,7 @@ const Room = () => {
       />
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card/50">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-mono-300 bg-mono-100/50">
         <div className="flex items-center gap-2">
           <ParticipantsList
             participants={participants}
@@ -147,7 +147,7 @@ const Room = () => {
           variant="ghost"
           size="sm"
           onClick={() => setFakeMode(true)}
-          className="text-muted-foreground"
+          className="text-mono-500 hover:text-mono-800 hover:bg-mono-200"
         >
           {fakeMode ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
           Fake Screen
@@ -157,7 +157,7 @@ const Room = () => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-mono-500">
             <p>No messages yet. Start the conversation!</p>
           </div>
         )}
@@ -201,7 +201,7 @@ const Room = () => {
       />
 
       {/* Panic hint */}
-      <div className="absolute bottom-20 left-4 text-xs text-muted-foreground/50">
+      <div className="absolute bottom-20 left-4 text-xs text-mono-400/50">
         ESC×2 to panic close
       </div>
     </div>

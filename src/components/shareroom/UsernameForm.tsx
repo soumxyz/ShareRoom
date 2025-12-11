@@ -35,11 +35,11 @@ export const UsernameForm = ({ onSubmit, initialValue = '' }: UsernameFormProps)
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
       <div className="space-y-2">
-        <label className="text-sm text-muted-foreground font-medium">
+        <label className="text-sm text-mono-600 font-medium">
           Choose your username
         </label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mono-400" />
           <Input
             type="text"
             value={username}
@@ -48,7 +48,7 @@ export const UsernameForm = ({ onSubmit, initialValue = '' }: UsernameFormProps)
               setError('');
             }}
             placeholder="anonymous_user"
-            className="pl-10 h-12 bg-secondary border-border font-mono focus:ring-2 focus:ring-primary focus:border-primary"
+            className="pl-10 h-12 bg-mono-100 border-mono-300 font-mono text-mono-800 placeholder:text-mono-400 focus:ring-2 focus:ring-mono-400 focus:border-mono-400"
             autoFocus
           />
         </div>
@@ -58,7 +58,7 @@ export const UsernameForm = ({ onSubmit, initialValue = '' }: UsernameFormProps)
       </div>
       <Button
         type="submit"
-        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold glow-primary transition-all"
+        className="w-full h-12 bg-mono-200 hover:bg-mono-300 text-mono-900 font-semibold border border-mono-300 transition-all"
       >
         Continue
         <ArrowRight className="ml-2 w-4 h-4" />

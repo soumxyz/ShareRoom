@@ -82,17 +82,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-mono-0">
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-mono-300/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-mono-400/10 rounded-full blur-[100px]" />
       </div>
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-4">
         <Logo size="md" />
-        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+        <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-mono-600 hover:text-mono-800 hover:bg-mono-200">
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </Button>
       </header>
@@ -103,14 +103,14 @@ const Index = () => {
           {/* Hero section */}
           {step === 'username' && (
             <div className="text-center space-y-4 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mono-200 border border-mono-300 text-mono-700 text-sm mb-4">
                 <Terminal className="w-4 h-4" />
                 Anonymous · Temporary · Secure
               </div>
-              <h1 className="text-4xl sm:text-5xl font-bold gradient-text">
+              <h1 className="text-4xl sm:text-5xl font-bold text-mono-900">
                 Share Code Instantly
               </h1>
-              <p className="text-muted-foreground text-lg max-w-sm mx-auto">
+              <p className="text-mono-500 text-lg max-w-sm mx-auto">
                 Create temporary chat rooms to share code, text, and files in real-time. No signup required.
               </p>
             </div>
@@ -118,8 +118,8 @@ const Index = () => {
 
           {step === 'options' && (
             <div className="text-center animate-fade-in">
-              <p className="text-muted-foreground mb-2">Welcome,</p>
-              <p className="text-2xl font-bold text-primary font-mono">{username}</p>
+              <p className="text-mono-500 mb-2">Welcome,</p>
+              <p className="text-2xl font-bold text-mono-800 font-mono">{username}</p>
             </div>
           )}
 
@@ -144,7 +144,7 @@ const Index = () => {
           {step === 'options' && (
             <button
               onClick={() => setStep('username')}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-mono-500 hover:text-mono-700 transition-colors"
             >
               ← Change username
             </button>
@@ -153,7 +153,7 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 text-center p-4 text-xs text-muted-foreground">
+      <footer className="relative z-10 text-center p-4 text-xs text-mono-400">
         <p>Press ESC twice to panic close</p>
       </footer>
     </div>

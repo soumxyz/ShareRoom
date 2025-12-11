@@ -18,6 +18,19 @@ export default {
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
+        mono: {
+          0: "hsl(var(--mono-0))",
+          50: "hsl(var(--mono-50))",
+          100: "hsl(var(--mono-100))",
+          200: "hsl(var(--mono-200))",
+          300: "hsl(var(--mono-300))",
+          400: "hsl(var(--mono-400))",
+          500: "hsl(var(--mono-500))",
+          600: "hsl(var(--mono-600))",
+          700: "hsl(var(--mono-700))",
+          800: "hsl(var(--mono-800))",
+          900: "hsl(var(--mono-900))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -77,6 +90,8 @@ export default {
           purple: "hsl(var(--terminal-purple))",
         },
         code: {
+          DEFAULT: "hsl(var(--code))",
+          foreground: "hsl(var(--code-foreground))",
           bg: "hsl(var(--code-bg))",
         },
       },

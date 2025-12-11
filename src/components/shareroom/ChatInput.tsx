@@ -54,14 +54,14 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t border-border bg-card p-4">
+    <div className="border-t border-mono-300 bg-mono-100 p-4">
       {/* Reply indicator */}
       {replyTo && (
-        <div className="flex items-center justify-between mb-2 px-3 py-2 bg-secondary/50 rounded-lg">
-          <span className="text-sm text-muted-foreground">
-            Replying to <span className="font-medium text-foreground">{replyTo.username}</span>
+        <div className="flex items-center justify-between mb-2 px-3 py-2 bg-mono-200/50 rounded-lg border border-mono-300">
+          <span className="text-sm text-mono-500">
+            Replying to <span className="font-medium text-mono-800">{replyTo.username}</span>
           </span>
-          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0">
+          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -69,9 +69,9 @@ export const ChatInput = ({
 
       {/* Code mode indicator */}
       {codeMode && (
-        <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-code/20 rounded-lg border border-code/30">
-          <Code className="w-4 h-4 text-code" />
-          <span className="text-sm text-code">Code mode ON - your message will be sent as a code block</span>
+        <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-mono-200/50 rounded-lg border border-mono-400">
+          <Code className="w-4 h-4 text-mono-600" />
+          <span className="text-sm text-mono-600">Code mode ON - your message will be sent as a code block</span>
         </div>
       )}
 
@@ -90,7 +90,7 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0"
+          className="shrink-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
         >
           <Paperclip className="w-5 h-5" />
         </Button>
@@ -102,7 +102,7 @@ export const ChatInput = ({
             onKeyDown={handleKeyDown}
             placeholder={codeMode ? "Type your code... (indentation preserved)" : "Type a message... (Shift+Enter for new line)"}
             disabled={disabled}
-            className={`min-h-[44px] max-h-[200px] resize-none pr-12 bg-secondary border-border focus:ring-2 focus:ring-primary ${codeMode ? 'font-mono text-sm' : ''}`}
+            className={`min-h-[44px] max-h-[200px] resize-none pr-12 bg-mono-100 border-mono-300 text-mono-800 placeholder:text-mono-400 focus:ring-2 focus:ring-mono-400 ${codeMode ? 'font-mono text-sm' : ''}`}
             rows={1}
           />
         </div>
@@ -113,7 +113,7 @@ export const ChatInput = ({
           size="icon"
           onClick={() => setCodeMode(!codeMode)}
           disabled={disabled}
-          className={`shrink-0 ${codeMode ? 'bg-code hover:bg-code/90 text-code-foreground' : ''}`}
+          className={`shrink-0 ${codeMode ? 'bg-mono-700 hover:bg-mono-600 text-mono-100' : 'text-mono-500 hover:text-mono-800 hover:bg-mono-200'}`}
           title={codeMode ? "Code mode ON (click to turn off)" : "Code mode OFF (click to turn on)"}
         >
           <Code className="w-5 h-5" />
@@ -123,7 +123,7 @@ export const ChatInput = ({
           type="submit"
           size="icon"
           disabled={disabled || !message.trim()}
-          className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="shrink-0 bg-mono-200 hover:bg-mono-300 text-mono-800 border border-mono-300"
         >
           <Send className="w-5 h-5" />
         </Button>
