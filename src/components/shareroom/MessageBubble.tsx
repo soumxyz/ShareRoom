@@ -50,8 +50,8 @@ export const MessageBubble = ({
 
   if (message.is_system) {
     return (
-      <div className="flex justify-center py-2 animate-fade-in">
-        <span className="text-xs text-mono-500 bg-mono-200/50 px-3 py-1 rounded-full">
+      <div className="flex justify-center py-1.5 animate-fade-in">
+        <span className="text-xs text-mono-500 bg-mono-100 px-3 py-1 rounded-full">
           {message.content}
         </span>
       </div>
@@ -113,7 +113,7 @@ export const MessageBubble = ({
       {replyMessage && (
         <button
           onClick={() => onScrollToMessage?.(replyMessage.id)}
-          className="flex items-center gap-2 text-xs text-mono-500 hover:text-mono-700 transition-colors ml-2"
+          className="flex items-center gap-1.5 text-xs text-mono-500 hover:text-mono-700 transition-colors ml-10"
         >
           <Reply className="w-3 h-3" />
           <span className="truncate max-w-[200px]">
@@ -122,28 +122,28 @@ export const MessageBubble = ({
         </button>
       )}
 
-      <div className={`flex items-start gap-2 max-w-[80%] ${isOwn ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex items-start gap-2.5 max-w-[85%] ${isOwn ? 'flex-row-reverse' : ''}`}>
         {/* Avatar */}
         <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-            isOwn ? 'bg-mono-700 text-mono-100' : 'bg-mono-300 text-mono-800'
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
+            isOwn ? 'bg-mono-700 text-mono-100' : 'bg-mono-200 text-mono-700'
           }`}
         >
           {message.username[0].toUpperCase()}
         </div>
 
         {/* Message content */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-mono-800">{message.username}</span>
-            <span className="text-xs text-mono-500">{time}</span>
+            <span className="text-xs text-mono-400">{time}</span>
           </div>
 
           <div
-            className={`rounded-lg p-3 ${
+            className={`rounded-xl px-3 py-2.5 ${
               isOwn
-                ? 'bg-mono-200 border border-mono-300'
-                : 'bg-mono-100 border border-mono-300'
+                ? 'bg-mono-200'
+                : 'bg-mono-100 border border-mono-200'
             }`}
           >
             {/* File message */}
