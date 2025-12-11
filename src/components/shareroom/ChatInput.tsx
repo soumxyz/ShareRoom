@@ -19,13 +19,19 @@ export const ChatInput = ({
   disabled,
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
-  const [showCodeHelper, setShowCodeHelper] = useState(false);
+  const [codeMode, setCodeMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
-      onSend(message.trim());
+      if (codeMode) {
+        // Wrap the message in code block, preserving exact indentation
+        const codeBlock = `\`\`\`\n${message}\n\`\`\``;
+        onSend(codeBlock);
+      } else {
+        onSend(message.trim());
+      }
       setMessage('');
     }
   };
@@ -47,18 +53,6 @@ export const ChatInput = ({
     }
   };
 
-  const insertCodeBlock = async () => {
-    try {
-      const clipboard = await navigator.clipboard.readText();
-      const codeBlock = `\`\`\`\n${clipboard}\n\`\`\``;
-      setMessage((prev) => prev + (prev ? '\n' : '') + codeBlock);
-    } catch {
-      const codeBlock = '```\n// Paste your code here\n```';
-      setMessage((prev) => prev + (prev ? '\n' : '') + codeBlock);
-    }
-    setShowCodeHelper(false);
-  };
-
   return (
     <div className="border-t border-border bg-card p-4">
       {/* Reply indicator */}
@@ -70,6 +64,14 @@ export const ChatInput = ({
           <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0">
             <X className="w-4 h-4" />
           </Button>
+        </div>
+      )}
+
+      {/* Code mode indicator */}
+      {codeMode && (
+        <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-code/20 rounded-lg border border-code/30">
+          <Code className="w-4 h-4 text-code" />
+          <span className="text-sm text-code">Code mode ON - your message will be sent as a code block</span>
         </div>
       )}
 
@@ -98,21 +100,21 @@ export const ChatInput = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message... (Shift+Enter for new line)"
+            placeholder={codeMode ? "Type your code... (indentation preserved)" : "Type a message... (Shift+Enter for new line)"}
             disabled={disabled}
-            className="min-h-[44px] max-h-[200px] resize-none pr-12 bg-secondary border-border focus:ring-2 focus:ring-primary"
+            className={`min-h-[44px] max-h-[200px] resize-none pr-12 bg-secondary border-border focus:ring-2 focus:ring-primary ${codeMode ? 'font-mono text-sm' : ''}`}
             rows={1}
           />
         </div>
 
         <Button
           type="button"
-          variant="ghost"
+          variant={codeMode ? "default" : "ghost"}
           size="icon"
-          onClick={insertCodeBlock}
+          onClick={() => setCodeMode(!codeMode)}
           disabled={disabled}
-          className="shrink-0"
-          title="Paste code from clipboard"
+          className={`shrink-0 ${codeMode ? 'bg-code hover:bg-code/90 text-code-foreground' : ''}`}
+          title={codeMode ? "Code mode ON (click to turn off)" : "Code mode OFF (click to turn on)"}
         >
           <Code className="w-5 h-5" />
         </Button>
