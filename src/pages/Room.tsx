@@ -21,6 +21,8 @@ const Room = () => {
   const [replyTo, setReplyTo] = useState<{ id: string; username: string; content: string } | null>(null);
   const [fakeMode, setFakeMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   const {
     room,
@@ -51,14 +53,29 @@ const Room = () => {
     }
   }, [username, code, navigate]);
 
-  // Auto scroll to bottom
+  // Track scroll position
+  const handleScroll = useCallback(() => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const threshold = 100;
+      setIsAtBottom(scrollHeight - scrollTop - clientHeight < threshold);
+    }
+  }, []);
+
+  // Auto scroll to bottom only when user is at bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (isAtBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isAtBottom]);
 
   const handleSend = async (content: string) => {
     await sendMessage(content, replyTo?.id);
     setReplyTo(null);
+    // Scroll to bottom after sending
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const handleBack = async () => {
@@ -88,9 +105,9 @@ const Room = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-mono-0">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-mono-600 mx-auto" />
-          <p className="text-mono-500">Connecting to room...</p>
+        <div className="text-center space-y-3">
+          <Loader2 className="w-10 h-10 animate-spin text-mono-600 mx-auto" />
+          <p className="text-mono-500 text-sm">Connecting to room...</p>
         </div>
       </div>
     );
@@ -99,11 +116,11 @@ const Room = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-mono-0">
-        <div className="text-center space-y-4 max-w-sm px-4">
-          <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-          <h2 className="text-xl font-semibold text-mono-800">{error}</h2>
-          <p className="text-mono-500">
+      <div className="min-h-screen flex items-center justify-center bg-mono-0 px-4">
+        <div className="text-center space-y-3 max-w-sm">
+          <AlertCircle className="w-10 h-10 text-destructive mx-auto" />
+          <h2 className="text-lg font-semibold text-mono-800">{error}</h2>
+          <p className="text-mono-500 text-sm">
             The room may have been deleted or you may have been banned.
           </p>
           <Button onClick={() => navigate('/')} variant="outline" className="border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800">
@@ -131,77 +148,96 @@ const Room = () => {
         onToggleTheme={toggleTheme}
       />
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-mono-300 bg-mono-100/50">
-        <div className="flex items-center gap-2">
-          <ParticipantsList
-            participants={participants}
-            currentUserId={participant?.id || null}
-            hostFingerprint={room.host_fingerprint}
-            isHost={isHost}
-            onMuteUser={muteUser}
-            onKickUser={(id) => kickUser(id, true)}
-          />
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setFakeMode(true)}
-          className="text-mono-500 hover:text-mono-800 hover:bg-mono-200"
-        >
-          {fakeMode ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
-          Fake Screen
-        </Button>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center py-12 text-mono-500">
-            <p>No messages yet. Start the conversation!</p>
+      {/* Main content area with max-width */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Toolbar */}
+        <div className="border-b border-mono-300 bg-mono-50">
+          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6">
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-2">
+                <ParticipantsList
+                  participants={participants}
+                  currentUserId={participant?.id || null}
+                  hostFingerprint={room.host_fingerprint}
+                  isHost={isHost}
+                  onMuteUser={muteUser}
+                  onKickUser={(id) => kickUser(id, true)}
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFakeMode(true)}
+                className="text-mono-500 hover:text-mono-800 hover:bg-mono-200 h-8 px-3 text-xs"
+              >
+                {fakeMode ? <Eye className="w-4 h-4 mr-1.5" /> : <EyeOff className="w-4 h-4 mr-1.5" />}
+                Fake Screen
+              </Button>
+            </div>
           </div>
-        )}
+        </div>
 
-        {messages.map((message) => {
-          const replyMessage = message.reply_to_id
-            ? messages.find((m) => m.id === message.reply_to_id)
-            : null;
+        {/* Messages */}
+        <div 
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto"
+        >
+          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6 py-6">
+            <div className="space-y-3">
+              {messages.length === 0 && (
+                <div className="text-center py-16 text-mono-500">
+                  <p className="text-sm">No messages yet. Start the conversation!</p>
+                </div>
+              )}
 
-          return (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              isOwn={message.participant_id === participant?.id}
-              isHost={isHost}
-              replyMessage={replyMessage}
-              onReply={() =>
-                setReplyTo({
-                  id: message.id,
-                  username: message.username,
-                  content: message.content || '',
-                })
-              }
-              onDelete={isHost || message.participant_id === participant?.id ? () => deleteMessage(message.id) : undefined}
-              onMuteUser={message.participant_id ? () => muteUser(message.participant_id!) : undefined}
-              onKickUser={message.participant_id ? () => kickUser(message.participant_id!, true) : undefined}
-              onScrollToMessage={scrollToMessage}
+              {messages.map((message) => {
+                const replyMessage = message.reply_to_id
+                  ? messages.find((m) => m.id === message.reply_to_id)
+                  : null;
+
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isOwn={message.participant_id === participant?.id}
+                    isHost={isHost}
+                    replyMessage={replyMessage}
+                    onReply={() =>
+                      setReplyTo({
+                        id: message.id,
+                        username: message.username,
+                        content: message.content || '',
+                      })
+                    }
+                    onDelete={isHost || message.participant_id === participant?.id ? () => deleteMessage(message.id) : undefined}
+                    onMuteUser={message.participant_id ? () => muteUser(message.participant_id!) : undefined}
+                    onKickUser={message.participant_id ? () => kickUser(message.participant_id!, true) : undefined}
+                    onScrollToMessage={scrollToMessage}
+                  />
+                );
+              })}
+              <div ref={messagesEndRef} className="h-4" />
+            </div>
+          </div>
+        </div>
+
+        {/* Input */}
+        <div className="border-t border-mono-300 bg-mono-50">
+          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6">
+            <ChatInput
+              onSend={handleSend}
+              onFileUpload={sendFile}
+              replyTo={replyTo}
+              onCancelReply={() => setReplyTo(null)}
+              disabled={participant?.is_muted}
             />
-          );
-        })}
-        <div ref={messagesEndRef} />
+          </div>
+        </div>
       </div>
-
-      {/* Input */}
-      <ChatInput
-        onSend={handleSend}
-        onFileUpload={sendFile}
-        replyTo={replyTo}
-        onCancelReply={() => setReplyTo(null)}
-        disabled={participant?.is_muted}
-      />
 
       {/* Panic hint */}
-      <div className="absolute bottom-20 left-4 text-xs text-mono-400/50">
+      <div className="absolute bottom-24 left-4 text-xs text-mono-400/40">
         ESC×2 to panic close
       </div>
     </div>
