@@ -51,7 +51,7 @@ export const MessageBubble = ({
   if (message.is_system) {
     return (
       <div className="flex justify-center py-2 animate-fade-in">
-        <span className="text-xs text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full">
+        <span className="text-xs text-mono-500 bg-mono-200/50 px-3 py-1 rounded-full">
           {message.content}
         </span>
       </div>
@@ -113,7 +113,7 @@ export const MessageBubble = ({
       {replyMessage && (
         <button
           onClick={() => onScrollToMessage?.(replyMessage.id)}
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors ml-2"
+          className="flex items-center gap-2 text-xs text-mono-500 hover:text-mono-700 transition-colors ml-2"
         >
           <Reply className="w-3 h-3" />
           <span className="truncate max-w-[200px]">
@@ -126,7 +126,7 @@ export const MessageBubble = ({
         {/* Avatar */}
         <div
           className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-            isOwn ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'
+            isOwn ? 'bg-mono-700 text-mono-100' : 'bg-mono-300 text-mono-800'
           }`}
         >
           {message.username[0].toUpperCase()}
@@ -135,15 +135,15 @@ export const MessageBubble = ({
         {/* Message content */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{message.username}</span>
-            <span className="text-xs text-muted-foreground">{time}</span>
+            <span className="text-sm font-medium text-mono-800">{message.username}</span>
+            <span className="text-xs text-mono-500">{time}</span>
           </div>
 
           <div
             className={`rounded-lg p-3 ${
               isOwn
-                ? 'bg-primary/20 border border-primary/30'
-                : 'bg-secondary border border-border'
+                ? 'bg-mono-200 border border-mono-300'
+                : 'bg-mono-100 border border-mono-300'
             }`}
           >
             {/* File message */}
@@ -153,9 +153,9 @@ export const MessageBubble = ({
                   {isPdf ? (
                     <FileText className="w-5 h-5 text-destructive" />
                   ) : (
-                    <File className="w-5 h-5 text-muted-foreground" />
+                    <File className="w-5 h-5 text-mono-500" />
                   )}
-                  <span className="font-mono text-sm">{message.file_name}</span>
+                  <span className="font-mono text-sm text-mono-800">{message.file_name}</span>
                 </div>
                 
                 <div className="flex gap-2">
@@ -163,7 +163,7 @@ export const MessageBubble = ({
                     href={message.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                    className="flex items-center gap-1 text-xs text-mono-600 hover:text-mono-800 hover:underline"
                   >
                     <ExternalLink className="w-3 h-3" />
                     Open
@@ -171,7 +171,7 @@ export const MessageBubble = ({
                   {(isPdf || isTxt) && (
                     <button
                       onClick={() => setShowPdfViewer(!showPdfViewer)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
+                      className="text-xs text-mono-500 hover:text-mono-700"
                     >
                       {showPdfViewer ? 'Hide' : 'Preview'}
                     </button>
@@ -181,14 +181,14 @@ export const MessageBubble = ({
                 {showPdfViewer && isPdf && (
                   <iframe
                     src={message.file_url}
-                    className="w-full h-[400px] rounded border border-border"
+                    className="w-full h-[400px] rounded border border-mono-300"
                   />
                 )}
 
                 {showPdfViewer && isTxt && (
                   <iframe
                     src={message.file_url}
-                    className="w-full h-[200px] rounded border border-border bg-code-bg"
+                    className="w-full h-[200px] rounded border border-mono-300 bg-mono-100"
                   />
                 )}
               </div>
@@ -202,7 +202,7 @@ export const MessageBubble = ({
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (
-                  <p key={i} className="text-sm whitespace-pre-wrap break-words">
+                  <p key={i} className="text-sm whitespace-pre-wrap break-words text-mono-800">
                     {part.content}
                   </p>
                 )
@@ -216,7 +216,7 @@ export const MessageBubble = ({
             size="sm"
             variant="ghost"
             onClick={onReply}
-            className="h-7 w-7 p-0"
+            className="h-7 w-7 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
           >
             <Reply className="w-3.5 h-3.5" />
           </Button>
@@ -224,11 +224,11 @@ export const MessageBubble = ({
           {(isHost || isOwn) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200">
                   <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-mono-100 border-mono-300">
                 {onDelete && (
                   <DropdownMenuItem onClick={onDelete} className="text-destructive">
                     <Trash2 className="w-4 h-4 mr-2" />

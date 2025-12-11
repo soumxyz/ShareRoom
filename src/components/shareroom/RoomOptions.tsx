@@ -28,11 +28,11 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
     return (
       <form onSubmit={handleJoin} className="w-full max-w-sm space-y-4 animate-fade-in">
         <div className="space-y-2">
-          <label className="text-sm text-muted-foreground font-medium">
+          <label className="text-sm text-mono-600 font-medium">
             Enter room code
           </label>
           <div className="relative">
-            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mono-400" />
             <Input
               type="text"
               value={roomCode}
@@ -41,7 +41,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
                 setError('');
               }}
               placeholder="ABCD12"
-              className="pl-10 h-12 bg-secondary border-border font-mono text-lg tracking-widest uppercase focus:ring-2 focus:ring-primary"
+              className="pl-10 h-12 bg-mono-100 border-mono-300 font-mono text-lg tracking-widest uppercase text-mono-800 placeholder:text-mono-400 focus:ring-2 focus:ring-mono-400"
               maxLength={6}
               autoFocus
             />
@@ -53,14 +53,14 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
             type="button"
             variant="outline"
             onClick={() => setMode('choose')}
-            className="flex-1 h-12 border-border"
+            className="flex-1 h-12 border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800"
             disabled={loading}
           >
             Back
           </Button>
           <Button
             type="submit"
-            className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            className="flex-1 h-12 bg-mono-200 hover:bg-mono-300 text-mono-900 font-semibold border border-mono-300"
             disabled={loading || roomCode.length !== 6}
           >
             {loading ? 'Joining...' : 'Join Room'}
@@ -75,7 +75,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
       <Button
         onClick={onCreateRoom}
         disabled={loading}
-        className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg glow-primary transition-all"
+        className="w-full h-14 bg-mono-200 hover:bg-mono-300 text-mono-900 font-semibold text-lg border border-mono-300 transition-all"
       >
         <Plus className="mr-2 w-5 h-5" />
         {loading ? 'Creating...' : 'Create Room'}
@@ -84,7 +84,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
         onClick={() => setMode('join')}
         variant="outline"
         disabled={loading}
-        className="w-full h-14 border-border hover:bg-secondary font-semibold text-lg"
+        className="w-full h-14 border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800 font-semibold text-lg"
       >
         <LogIn className="mr-2 w-5 h-5" />
         Join Room
