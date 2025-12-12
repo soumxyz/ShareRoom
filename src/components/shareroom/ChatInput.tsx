@@ -54,14 +54,14 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="py-3">
+    <div className="py-2 sm:py-3">
       {/* Reply indicator */}
       {replyTo && (
         <div className="flex items-center justify-between mb-2 px-3 py-2 bg-mono-100 rounded-lg border border-mono-200">
-          <span className="text-xs text-mono-500">
+          <span className="text-xs text-mono-500 truncate mr-2">
             Replying to <span className="font-medium text-mono-700">{replyTo.username}</span>
           </span>
-          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200">
+          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200 shrink-0">
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -70,12 +70,12 @@ export const ChatInput = ({
       {/* Code mode indicator */}
       {codeMode && (
         <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-mono-100 rounded-lg border border-mono-300">
-          <Code className="w-3.5 h-3.5 text-mono-600" />
-          <span className="text-xs text-mono-600">Code mode ON - your message will be sent as a code block</span>
+          <Code className="w-3.5 h-3.5 text-mono-600 shrink-0" />
+          <span className="text-xs text-mono-600 truncate">Code mode ON - sent as code block</span>
         </div>
       )}
 
-      <div className="flex items-end gap-2 p-3 bg-mono-100 rounded-xl border border-mono-200">
+      <div className="flex items-end gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-xl border border-mono-200">
         <input
           ref={fileInputRef}
           type="file"
@@ -95,15 +95,15 @@ export const ChatInput = ({
           <Paperclip className="w-4 h-4" />
         </Button>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex items-end gap-2">
-          <div className="flex-1">
+        <form onSubmit={handleSubmit} className="flex-1 flex items-end gap-1.5 sm:gap-2 min-w-0">
+          <div className="flex-1 min-w-0">
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={codeMode ? "Type your code... (indentation preserved)" : "Type a message..."}
+              placeholder={codeMode ? "Type code..." : "Type a message..."}
               disabled={disabled}
-              className={`min-h-[40px] max-h-[200px] resize-none bg-transparent border-0 text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[36px] sm:min-h-[40px] max-h-[120px] sm:max-h-[200px] resize-none bg-transparent border-0 text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
               rows={1}
             />
           </div>
