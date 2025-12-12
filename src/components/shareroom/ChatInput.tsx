@@ -57,11 +57,11 @@ export const ChatInput = ({
     <div className="py-2 sm:py-3">
       {/* Reply indicator */}
       {replyTo && (
-        <div className="flex items-center justify-between mb-2 px-3 py-2 bg-mono-100 rounded-lg border border-mono-200">
+        <div className="indicator-bar justify-between mb-2">
           <span className="text-xs text-mono-500 truncate mr-2">
             Replying to <span className="font-medium text-mono-700">{replyTo.username}</span>
           </span>
-          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200 shrink-0">
+          <Button size="sm" variant="ghost" onClick={onCancelReply} className="h-6 w-6 p-0 icon-btn shrink-0">
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -69,7 +69,7 @@ export const ChatInput = ({
 
       {/* Code mode indicator */}
       {codeMode && (
-        <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-mono-100 rounded-lg border border-mono-300">
+        <div className="indicator-bar mb-2 border-mono-300">
           <Code className="w-3.5 h-3.5 text-mono-600 shrink-0" />
           <span className="text-xs text-mono-600 truncate">Code mode ON - sent as code block</span>
         </div>
@@ -90,7 +90,7 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200 h-8 w-8"
+          className="shrink-0 icon-btn-md"
         >
           <Paperclip className="w-4 h-4" />
         </Button>

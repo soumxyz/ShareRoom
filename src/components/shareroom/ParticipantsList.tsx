@@ -36,7 +36,7 @@ export const ParticipantsList = ({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-mono-600 hover:text-mono-800 hover:bg-mono-200">
+        <Button variant="ghost" size="icon" className="relative icon-btn">
           <Users className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-mono-700 text-mono-100 text-xs rounded-full flex items-center justify-center">
             {participants.length}
@@ -60,13 +60,7 @@ export const ParticipantsList = ({
                 }`}
               >
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${
-                      isParticipantHost
-                        ? 'bg-mono-700 text-mono-100'
-                        : 'bg-mono-300 text-mono-700'
-                    }`}
-                  >
+                  <div className={`avatar-md rounded-full font-bold ${isParticipantHost ? 'avatar-host' : 'bg-mono-300 text-mono-700'}`}>
                     {p.username[0].toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -94,19 +88,15 @@ export const ParticipantsList = ({
                       size="sm"
                       variant="ghost"
                       onClick={() => onMuteUser(p.id)}
-                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
+                      className="icon-btn-sm sm:h-8 sm:w-8"
                     >
-                      {p.is_muted ? (
-                        <Volume2 className="w-4 h-4" />
-                      ) : (
-                        <VolumeX className="w-4 h-4" />
-                      )}
+                      {p.is_muted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => onKickUser(p.id)}
-                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive hover:bg-mono-200"
+                      className="icon-btn-sm sm:h-8 sm:w-8 text-destructive hover:text-destructive"
                     >
                       <UserX className="w-4 h-4" />
                     </Button>

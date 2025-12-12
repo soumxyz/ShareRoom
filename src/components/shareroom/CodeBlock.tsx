@@ -26,7 +26,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
   };
 
   return (
-    <div className="relative group rounded-lg overflow-hidden border border-mono-300 bg-mono-100 max-w-full">
+    <div className="relative group card-base overflow-hidden max-w-full">
       {/* Header */}
       <div className="flex items-center justify-between px-2 sm:px-3 py-2 bg-mono-200/50 border-b border-mono-300">
         <div className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
             size="sm"
             variant="ghost"
             onClick={() => setShowLineNumbers(!showLineNumbers)}
-            className="h-7 w-7 sm:w-auto sm:px-2 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
+            className="icon-btn-sm sm:w-auto sm:px-2"
           >
             <Hash className="w-3.5 h-3.5" />
           </Button>
@@ -52,7 +52,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
             size="sm"
             variant="ghost"
             onClick={copyCode}
-            className="h-7 px-2 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
+            className="icon-btn-sm px-2"
           >
             {copied ? (
               <Check className="w-3.5 h-3.5 text-success" />

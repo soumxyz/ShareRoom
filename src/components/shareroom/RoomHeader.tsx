@@ -65,7 +65,7 @@ export const RoomHeader = ({
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="shrink-0 text-mono-600 hover:text-mono-800 hover:bg-mono-200 h-8 w-8"
+              className="shrink-0 icon-btn-md"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -98,7 +98,7 @@ export const RoomHeader = ({
               variant="ghost"
               size="icon"
               onClick={() => setShowQR(true)}
-              className="hidden sm:flex text-mono-600 hover:text-mono-800 hover:bg-mono-200 h-8 w-8"
+              className="hidden sm:flex icon-btn-md"
             >
               <QrCode className="w-4 h-4" />
             </Button>
@@ -109,7 +109,7 @@ export const RoomHeader = ({
                 variant="ghost"
                 size="icon"
                 onClick={onToggleLock}
-                className={`h-8 w-8 ${isLocked ? 'text-warning' : 'text-mono-600'} hover:bg-mono-200`}
+                className={`icon-btn-md ${isLocked ? 'text-warning hover:text-warning' : ''}`}
               >
                 {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
               </Button>
@@ -123,7 +123,7 @@ export const RoomHeader = ({
             )}
 
             {/* Theme toggle */}
-            <Button variant="ghost" size="icon" onClick={onToggleTheme} className="text-mono-600 hover:text-mono-800 hover:bg-mono-200 h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={onToggleTheme} className="icon-btn-md">
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4" />
               ) : (
