@@ -42,7 +42,7 @@ export const RoomCreated = ({ roomCode, onGoToRoom }: RoomCreatedProps) => {
     <div className="w-full max-w-sm space-y-6 animate-fade-in text-center">
       <div className="space-y-2">
         <p className="text-sm text-mono-600">Room created successfully!</p>
-        <div className="bg-mono-100 border border-mono-300 rounded-xl p-6 space-y-4">
+        <div className="card-elevated p-6 space-y-4">
           <div className="space-y-1">
             <p className="text-xs text-mono-500 uppercase tracking-wider">Room Code</p>
             <p className="text-4xl font-mono font-bold tracking-[0.3em] text-mono-800">

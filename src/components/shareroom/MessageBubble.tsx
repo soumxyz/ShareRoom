@@ -122,11 +122,7 @@ export const MessageBubble = ({
 
       <div className="flex items-start gap-2 sm:gap-3">
         {/* Avatar */}
-        <div
-          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs font-semibold shrink-0 ${
-            isOwn ? 'bg-mono-700 text-mono-100' : 'bg-mono-200 text-mono-700'
-          }`}
-        >
+        <div className={`avatar-sm ${isOwn ? 'avatar-own' : 'avatar-other'}`}>
           {message.username[0].toUpperCase()}
         </div>
 
@@ -137,7 +133,7 @@ export const MessageBubble = ({
             <span className="text-[11px] text-mono-500 shrink-0">{time}</span>
           </div>
 
-          <div className="rounded-md border border-mono-300 bg-mono-50 px-3 sm:px-4 py-2 sm:py-3 overflow-hidden">
+          <div className="bubble-base">
             {/* File message */}
             {message.message_type === 'file' && message.file_url && (
               <div className="space-y-2">
@@ -211,7 +207,7 @@ export const MessageBubble = ({
             size="sm"
             variant="ghost"
             onClick={onReply}
-            className="h-7 w-7 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
+            className="icon-btn-sm"
           >
             <Reply className="w-3.5 h-3.5" />
           </Button>
@@ -219,7 +215,7 @@ export const MessageBubble = ({
           {(isHost || isOwn) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200">
+                <Button size="sm" variant="ghost" className="icon-btn-sm">
                   <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
