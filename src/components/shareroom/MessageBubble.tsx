@@ -111,19 +111,19 @@ export const MessageBubble = ({
       {replyMessage && (
         <button
           onClick={() => onScrollToMessage?.(replyMessage.id)}
-          className="flex items-center gap-1.5 text-xs text-mono-500 hover:text-mono-700 transition-colors mb-1 ml-10"
+          className="flex items-center gap-1.5 text-xs text-mono-500 hover:text-mono-700 transition-colors mb-1 ml-8 sm:ml-10"
         >
-          <Reply className="w-3 h-3" />
-          <span className="truncate max-w-[280px]">
-            Replying to {replyMessage.username}: {replyMessage.content?.slice(0, 40)}...
+          <Reply className="w-3 h-3 shrink-0" />
+          <span className="truncate max-w-[200px] sm:max-w-[280px]">
+            Replying to {replyMessage.username}: {replyMessage.content?.slice(0, 30)}...
           </span>
         </button>
       )}
 
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         {/* Avatar */}
         <div
-          className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-semibold shrink-0 ${
+          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs font-semibold shrink-0 ${
             isOwn ? 'bg-mono-700 text-mono-100' : 'bg-mono-200 text-mono-700'
           }`}
         >
@@ -131,13 +131,13 @@ export const MessageBubble = ({
         </div>
 
         {/* Message content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-mono-800">{message.username}</span>
-            <span className="text-[11px] text-mono-500">{time}</span>
+            <span className="text-sm font-medium text-mono-800 truncate">{message.username}</span>
+            <span className="text-[11px] text-mono-500 shrink-0">{time}</span>
           </div>
 
-          <div className="rounded-md border border-mono-300 bg-mono-50 px-4 py-3">
+          <div className="rounded-md border border-mono-300 bg-mono-50 px-3 sm:px-4 py-2 sm:py-3 overflow-hidden">
             {/* File message */}
             {message.message_type === 'file' && message.file_url && (
               <div className="space-y-2">
@@ -147,7 +147,7 @@ export const MessageBubble = ({
                   ) : (
                     <File className="w-4 h-4 text-mono-500 shrink-0" />
                   )}
-                  <span className="font-mono text-sm text-mono-800 break-all">{message.file_name}</span>
+                  <span className="font-mono text-xs sm:text-sm text-mono-800 break-all">{message.file_name}</span>
                 </div>
                 
                 <div className="flex gap-3">
@@ -173,14 +173,14 @@ export const MessageBubble = ({
                 {showPdfViewer && isPdf && (
                   <iframe
                     src={message.file_url}
-                    className="w-full h-[400px] rounded-md border border-mono-300 mt-2"
+                    className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
                   />
                 )}
 
                 {showPdfViewer && isTxt && (
                   <iframe
                     src={message.file_url}
-                    className="w-full h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
+                    className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
                   />
                 )}
               </div>
@@ -191,7 +191,7 @@ export const MessageBubble = ({
               <div className="space-y-3">
                 {contentParts.map((part, i) =>
                   part.type === 'code' ? (
-                    <div key={i} className="-mx-4 -my-1 first:mt-0 last:mb-0">
+                    <div key={i} className="-mx-3 sm:-mx-4 -my-1 first:mt-0 last:mb-0">
                       <CodeBlock code={part.content} language={part.language} />
                     </div>
                   ) : (
@@ -205,8 +205,8 @@ export const MessageBubble = ({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
+        {/* Actions - always visible on mobile */}
+        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
           <Button
             size="sm"
             variant="ghost"

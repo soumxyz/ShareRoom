@@ -43,11 +43,11 @@ export const ParticipantsList = ({
           </span>
         </Button>
       </SheetTrigger>
-      <SheetContent className="bg-mono-50 border-mono-300">
+      <SheetContent className="bg-mono-50 border-mono-300 w-[300px] sm:w-[400px]">
         <SheetHeader>
           <SheetTitle className="text-mono-800">Participants ({participants.length})</SheetTitle>
         </SheetHeader>
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-120px)]">
           {participants.map((p) => {
             const isCurrentUser = p.id === currentUserId;
             const isParticipantHost = p.fingerprint === hostFingerprint;
@@ -55,13 +55,13 @@ export const ParticipantsList = ({
             return (
               <div
                 key={p.id}
-                className={`flex items-center justify-between p-3 rounded-lg ${
+                className={`flex items-center justify-between p-2 sm:p-3 rounded-lg ${
                   isCurrentUser ? 'bg-mono-200 border border-mono-400' : 'bg-mono-100 border border-mono-300'
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${
                       isParticipantHost
                         ? 'bg-mono-700 text-mono-100'
                         : 'bg-mono-300 text-mono-700'
@@ -69,14 +69,14 @@ export const ParticipantsList = ({
                   >
                     {p.username[0].toUpperCase()}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-mono-800">{p.username}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="font-medium text-mono-800 text-sm truncate">{p.username}</span>
                       {isCurrentUser && (
-                        <span className="text-xs text-mono-500">(you)</span>
+                        <span className="text-xs text-mono-500 shrink-0">(you)</span>
                       )}
                       {isParticipantHost && (
-                        <Crown className="w-4 h-4 text-warning" />
+                        <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-warning shrink-0" />
                       )}
                     </div>
                     {p.is_muted && (
@@ -89,12 +89,12 @@ export const ParticipantsList = ({
                 </div>
 
                 {isHost && !isCurrentUser && !isParticipantHost && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 ml-2">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => onMuteUser(p.id)}
-                      className="h-8 w-8 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-mono-500 hover:text-mono-800 hover:bg-mono-200"
                     >
                       {p.is_muted ? (
                         <Volume2 className="w-4 h-4" />
@@ -106,7 +106,7 @@ export const ParticipantsList = ({
                       size="sm"
                       variant="ghost"
                       onClick={() => onKickUser(p.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-mono-200"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive hover:bg-mono-200"
                     >
                       <UserX className="w-4 h-4" />
                     </Button>

@@ -134,7 +134,7 @@ const Room = () => {
   if (!room) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-mono-0">
+    <div className="h-[100dvh] flex flex-col bg-mono-0 overflow-hidden">
       {/* Header */}
       <RoomHeader
         roomCode={room.code}
@@ -149,10 +149,10 @@ const Room = () => {
       />
 
       {/* Main content area with max-width */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
-        <div className="border-b border-mono-300 bg-mono-50">
-          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6">
+        <div className="border-b border-mono-300 bg-mono-50 shrink-0">
+          <div className="max-w-[780px] mx-auto w-full px-4">
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-2">
                 <ParticipantsList
@@ -168,10 +168,10 @@ const Room = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setFakeMode(true)}
-                className="text-mono-500 hover:text-mono-800 hover:bg-mono-200 h-8 px-3 text-xs"
+                className="text-mono-500 hover:text-mono-800 hover:bg-mono-200 h-8 px-2 sm:px-3 text-xs"
               >
-                {fakeMode ? <Eye className="w-4 h-4 mr-1.5" /> : <EyeOff className="w-4 h-4 mr-1.5" />}
-                Fake Screen
+                <EyeOff className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Fake Screen</span>
               </Button>
             </div>
           </div>
@@ -181,12 +181,12 @@ const Room = () => {
         <div 
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
         >
-          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6 py-6">
+          <div className="max-w-[780px] mx-auto w-full px-4 py-4 sm:py-6">
             <div className="space-y-3">
               {messages.length === 0 && (
-                <div className="text-center py-16 text-mono-500">
+                <div className="text-center py-12 sm:py-16 text-mono-500">
                   <p className="text-sm">No messages yet. Start the conversation!</p>
                 </div>
               )}
@@ -222,9 +222,9 @@ const Room = () => {
           </div>
         </div>
 
-        {/* Input */}
-        <div className="border-t border-mono-300 bg-mono-50">
-          <div className="max-w-[780px] mx-auto w-full px-4 md:px-6">
+        {/* Input - fixed at bottom */}
+        <div className="border-t border-mono-300 bg-mono-50 shrink-0">
+          <div className="max-w-[780px] mx-auto w-full px-4">
             <ChatInput
               onSend={handleSend}
               onFileUpload={sendFile}
@@ -236,8 +236,8 @@ const Room = () => {
         </div>
       </div>
 
-      {/* Panic hint */}
-      <div className="absolute bottom-24 left-4 text-xs text-mono-400/40">
+      {/* Panic hint - hidden on mobile */}
+      <div className="hidden sm:block absolute bottom-24 left-4 text-xs text-mono-400/40">
         ESC×2 to panic close
       </div>
     </div>
