@@ -365,21 +365,39 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   };
 
   const leaveRoom = async () => {
-    if (!room || !participant) return;
+    // Send leave message if we have room and participant
+    if (room && participant) {
+      try {
+        await supabase.from('messages').insert({
+          room_id: room.id,
+          username: 'System',
+          content: `${participant.username} left the room`,
+          message_type: 'system',
+          is_system: true,
+        });
 
-    await supabase.from('messages').insert({
-      room_id: room.id,
-      username: 'System',
-      content: `${participant.username} left the room`,
-      message_type: 'system',
-      is_system: true,
-    });
-
-    await supabase.from('room_participants').delete().eq('id', participant.id);
-
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
+        await supabase.from('room_participants').delete().eq('id', participant.id);
+      } catch (err) {
+        console.error('Error during leave cleanup:', err);
+      }
     }
+
+    // Remove the specific channel
+    if (channelRef.current) {
+      await supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
+    // Remove all remaining channels to ensure no ghost presence
+    await supabase.removeAllChannels();
+
+    // Reset all local state
+    setRoom(null);
+    setMessages([]);
+    setParticipants([]);
+    setParticipant(null);
+    setIsHost(false);
+    setError(null);
   };
 
   return {
