@@ -365,24 +365,18 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   };
 
   const leaveRoom = async () => {
-    // Send leave message if we have room and participant
-    if (room && participant) {
-      try {
-        await supabase.from('messages').insert({
-          room_id: room.id,
-          username: 'System',
-          content: `${participant.username} left the room`,
-          message_type: 'system',
-          is_system: true,
-        });
+    const roomId = room?.id;
+    const participantId = participant?.id;
+    const participantUsername = participant?.username;
 
-        await supabase.from('room_participants').delete().eq('id', participant.id);
-      } catch (err) {
-        console.error('Error during leave cleanup:', err);
-      }
-    }
+    // Reset all local state immediately to prevent stale data
+    setMessages([]);
+    setParticipants([]);
+    setParticipant(null);
+    setIsHost(false);
+    setError(null);
 
-    // Remove the specific channel
+    // Remove the specific channel first
     if (channelRef.current) {
       await supabase.removeChannel(channelRef.current);
       channelRef.current = null;
@@ -391,13 +385,39 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     // Remove all remaining channels to ensure no ghost presence
     await supabase.removeAllChannels();
 
-    // Reset all local state
+    // Perform database cleanup if we had room and participant
+    if (roomId && participantId) {
+      try {
+        // Send leave message
+        await supabase.from('messages').insert({
+          room_id: roomId,
+          username: 'System',
+          content: `${participantUsername} left the room`,
+          message_type: 'system',
+          is_system: true,
+        });
+
+        // Delete participant
+        await supabase.from('room_participants').delete().eq('id', participantId);
+
+        // Check if any non-banned participants remain
+        const { data: remainingParticipants } = await supabase
+          .from('room_participants')
+          .select('id')
+          .eq('room_id', roomId)
+          .eq('is_banned', false);
+
+        // If no participants left, delete all messages for this room
+        if (!remainingParticipants || remainingParticipants.length === 0) {
+          await supabase.from('messages').delete().eq('room_id', roomId);
+        }
+      } catch (err) {
+        console.error('Error during leave cleanup:', err);
+      }
+    }
+
+    // Reset room last to allow cleanup operations
     setRoom(null);
-    setMessages([]);
-    setParticipants([]);
-    setParticipant(null);
-    setIsHost(false);
-    setError(null);
   };
 
   return {
