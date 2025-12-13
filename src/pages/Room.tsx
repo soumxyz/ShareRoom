@@ -49,7 +49,7 @@ const Room = () => {
     await leaveRoom();
   });
 
-  // Room access guard - check username, fingerprint, and participant row
+  // Room access guard - check username and ban status
   useEffect(() => {
     const checkAccess = async () => {
       // If no username, redirect to home with code
@@ -58,14 +58,14 @@ const Room = () => {
         return;
       }
 
-      // Get fingerprint and verify participant exists
+      // Get fingerprint
       const fingerprint = await getFingerprint();
       if (!fingerprint) {
         navigate('/', { replace: true });
         return;
       }
 
-      // Check if room exists first
+      // Check if room exists
       const { data: roomData } = await supabase
         .from('rooms')
         .select('id')
@@ -77,17 +77,15 @@ const Room = () => {
         return;
       }
 
-      // Check if participant exists for this room and fingerprint
-      const { data: participantData } = await supabase
-        .from('room_participants')
+      // Check if user is banned from this room
+      const { data: banData } = await supabase
+        .from('banned_fingerprints')
         .select('id')
         .eq('room_id', roomData.id)
         .eq('fingerprint', fingerprint)
-        .eq('is_banned', false)
         .maybeSingle();
 
-      if (!participantData) {
-        // No valid participant row - redirect to home
+      if (banData) {
         navigate('/', { replace: true });
         return;
       }
