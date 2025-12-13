@@ -8,8 +8,10 @@ import { MessageBubble } from '@/components/shareroom/MessageBubble';
 import { ChatInput } from '@/components/shareroom/ChatInput';
 import { FakeScreen } from '@/components/shareroom/FakeScreen';
 import { ParticipantsList } from '@/components/shareroom/ParticipantsList';
-import { Loader2, AlertCircle, EyeOff, Eye } from 'lucide-react';
+import { Loader2, AlertCircle, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { getFingerprint } from '@/lib/fingerprint';
 
 const Room = () => {
   const { code } = useParams<{ code: string }>();
@@ -23,6 +25,7 @@ const Room = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   const {
     room,
@@ -46,12 +49,54 @@ const Room = () => {
     await leaveRoom();
   });
 
-  // Redirect if no username
+  // Room access guard - check username, fingerprint, and participant row
   useEffect(() => {
-    if (!username) {
-      navigate(`/?code=${code}`);
-    }
-  }, [username, code, navigate]);
+    const checkAccess = async () => {
+      // If no username, redirect to home with code
+      if (!username) {
+        navigate(`/?code=${code}`, { replace: true });
+        return;
+      }
+
+      // Get fingerprint and verify participant exists
+      const fingerprint = await getFingerprint();
+      if (!fingerprint) {
+        navigate('/', { replace: true });
+        return;
+      }
+
+      // Check if room exists first
+      const { data: roomData } = await supabase
+        .from('rooms')
+        .select('id')
+        .eq('code', code?.toUpperCase() || '')
+        .maybeSingle();
+
+      if (!roomData) {
+        navigate('/', { replace: true });
+        return;
+      }
+
+      // Check if participant exists for this room and fingerprint
+      const { data: participantData } = await supabase
+        .from('room_participants')
+        .select('id')
+        .eq('room_id', roomData.id)
+        .eq('fingerprint', fingerprint)
+        .eq('is_banned', false)
+        .maybeSingle();
+
+      if (!participantData) {
+        // No valid participant row - redirect to home
+        navigate('/', { replace: true });
+        return;
+      }
+
+      setAccessChecked(true);
+    };
+
+    checkAccess();
+  }, [code, username, navigate]);
 
   // Track scroll position
   const handleScroll = useCallback(() => {
@@ -80,7 +125,7 @@ const Room = () => {
 
   const handleBack = async () => {
     await leaveRoom();
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const scrollToMessage = useCallback((id: string) => {
@@ -101,8 +146,8 @@ const Room = () => {
     );
   }
 
-  // Loading state
-  if (loading) {
+  // Loading state - also wait for access check
+  if (loading || !accessChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-mono-0">
         <div className="text-center space-y-3">
@@ -123,7 +168,7 @@ const Room = () => {
           <p className="text-mono-500 text-sm">
             The room may have been deleted or you may have been banned.
           </p>
-          <Button onClick={() => navigate('/')} variant="outline" className="border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800">
+          <Button onClick={() => navigate('/', { replace: true })} variant="outline" className="border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800">
             Go Home
           </Button>
         </div>
