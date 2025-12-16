@@ -48,10 +48,10 @@ export const MessageBubble = ({
 }: MessageBubbleProps) => {
   const [showPdfViewer, setShowPdfViewer] = useState(false);
 
-  // System messages - centered, no bubble
+  // System messages - centered, fade in only
   if (message.is_system) {
     return (
-      <div className="flex justify-center py-2">
+      <div className="flex justify-center py-2 animate-message-system">
         <span className="text-[11px] text-mono-500 px-3 py-1">
           {message.content}
         </span>
@@ -106,7 +106,7 @@ export const MessageBubble = ({
   return (
     <div
       id={`message-${message.id}`}
-      className={`group flex flex-col ${isOwn ? 'items-end animate-message-send' : 'items-start'} mb-3`}
+      className={`group flex flex-col ${isOwn ? 'items-end animate-message-send' : 'items-start animate-message-receive'} mb-3`}
     >
       {/* Reply reference */}
       {replyMessage && (

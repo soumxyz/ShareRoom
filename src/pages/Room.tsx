@@ -100,15 +100,18 @@ const Room = () => {
   const handleScroll = useCallback(() => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const threshold = 100;
+      const threshold = 150; // More generous threshold
       setIsAtBottom(scrollHeight - scrollTop - clientHeight < threshold);
     }
   }, []);
 
   // Auto scroll to bottom only when user is at bottom
   useEffect(() => {
-    if (isAtBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isAtBottom && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [messages, isAtBottom]);
 
