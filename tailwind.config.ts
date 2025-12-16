@@ -129,6 +129,14 @@ export default {
           "0%": { opacity: "0", transform: "translateY(8px) scale(0.97)" },
           "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
+        "message-receive": {
+          "0%": { opacity: "0", transform: "translateX(-12px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "message-system": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -138,6 +146,8 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
         "message-send": "message-send 0.2s ease-out",
+        "message-receive": "message-receive 0.18s ease-out",
+        "message-system": "message-system 0.2s ease-out",
       },
     },
   },
