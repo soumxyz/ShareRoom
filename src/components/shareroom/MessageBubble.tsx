@@ -48,10 +48,11 @@ export const MessageBubble = ({
 }: MessageBubbleProps) => {
   const [showPdfViewer, setShowPdfViewer] = useState(false);
 
+  // System messages - centered, no bubble
   if (message.is_system) {
     return (
-      <div className="flex justify-center py-2 animate-fade-in">
-        <span className="text-[11px] text-mono-600 px-3 py-1">
+      <div className="flex justify-center py-2">
+        <span className="text-[11px] text-mono-500 px-3 py-1">
           {message.content}
         </span>
       </div>
@@ -105,13 +106,13 @@ export const MessageBubble = ({
   return (
     <div
       id={`message-${message.id}`}
-      className="group w-full animate-fade-in"
+      className={`group flex flex-col ${isOwn ? 'items-end' : 'items-start'} mb-3`}
     >
       {/* Reply reference */}
       {replyMessage && (
         <button
           onClick={() => onScrollToMessage?.(replyMessage.id)}
-          className="flex items-center gap-1.5 text-xs text-mono-500 hover:text-mono-700 transition-colors mb-1 ml-8 sm:ml-10"
+          className={`flex items-center gap-1.5 text-xs text-mono-500 hover:text-mono-700 transition-colors mb-1 ${isOwn ? 'mr-2' : 'ml-2'}`}
         >
           <Reply className="w-3 h-3 shrink-0" />
           <span className="truncate max-w-[200px] sm:max-w-[280px]">
@@ -120,94 +121,98 @@ export const MessageBubble = ({
         </button>
       )}
 
-      <div className="flex items-start gap-2 sm:gap-3">
-        {/* Avatar */}
-        <div className={`avatar-sm ${isOwn ? 'avatar-own' : 'avatar-other'}`}>
-          {message.username[0].toUpperCase()}
+      {/* Username and time - only for other users */}
+      {!isOwn && (
+        <div className={`flex items-center gap-2 mb-1 ml-2`}>
+          <span className="text-xs font-medium text-mono-700">{message.username}</span>
+          <span className="text-[10px] text-mono-500">{time}</span>
         </div>
+      )}
 
-        {/* Message content */}
-        <div className="flex-1 min-w-0 overflow-hidden">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-mono-800 truncate">{message.username}</span>
-            <span className="text-[11px] text-mono-500 shrink-0">{time}</span>
-          </div>
-
-          <div className="bubble-base">
-            {/* File message */}
-            {message.message_type === 'file' && message.file_url && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {isPdf ? (
-                    <FileText className="w-4 h-4 text-destructive shrink-0" />
-                  ) : (
-                    <File className="w-4 h-4 text-mono-500 shrink-0" />
-                  )}
-                  <span className="font-mono text-xs sm:text-sm text-mono-800 break-all">{message.file_name}</span>
-                </div>
-                
-                <div className="flex gap-3">
-                  <a
-                    href={message.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-mono-600 hover:text-mono-800 hover:underline"
+      <div className={`flex items-end gap-2 max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Message bubble */}
+        <div
+          className={`relative px-4 py-2.5 rounded-2xl ${
+            isOwn
+              ? 'bg-mono-800 text-mono-50 rounded-br-md'
+              : 'bg-mono-200 text-mono-800 rounded-bl-md'
+          }`}
+        >
+          {/* File message */}
+          {message.message_type === 'file' && message.file_url && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                {isPdf ? (
+                  <FileText className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-destructive'}`} />
+                ) : (
+                  <File className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-400' : 'text-mono-500'}`} />
+                )}
+                <span className={`font-mono text-xs sm:text-sm break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
+                  {message.file_name}
+                </span>
+              </div>
+              
+              <div className="flex gap-3">
+                <a
+                  href={message.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-1 text-xs hover:underline ${isOwn ? 'text-mono-300 hover:text-mono-100' : 'text-mono-600 hover:text-mono-800'}`}
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Open
+                </a>
+                {(isPdf || isTxt) && (
+                  <button
+                    onClick={() => setShowPdfViewer(!showPdfViewer)}
+                    className={`text-xs ${isOwn ? 'text-mono-400 hover:text-mono-200' : 'text-mono-500 hover:text-mono-700'}`}
                   >
-                    <ExternalLink className="w-3 h-3" />
-                    Open
-                  </a>
-                  {(isPdf || isTxt) && (
-                    <button
-                      onClick={() => setShowPdfViewer(!showPdfViewer)}
-                      className="text-xs text-mono-500 hover:text-mono-700"
-                    >
-                      {showPdfViewer ? 'Hide' : 'Preview'}
-                    </button>
-                  )}
-                </div>
-
-                {showPdfViewer && isPdf && (
-                  <iframe
-                    src={message.file_url}
-                    className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
-                  />
-                )}
-
-                {showPdfViewer && isTxt && (
-                  <iframe
-                    src={message.file_url}
-                    className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
-                  />
+                    {showPdfViewer ? 'Hide' : 'Preview'}
+                  </button>
                 )}
               </div>
-            )}
 
-            {/* Text message with code blocks */}
-            {message.message_type !== 'file' && (
-              <div className="space-y-3">
-                {contentParts.map((part, i) =>
-                  part.type === 'code' ? (
-                    <div key={i} className="-mx-3 sm:-mx-4 -my-1 first:mt-0 last:mb-0">
-                      <CodeBlock code={part.content} language={part.language} />
-                    </div>
-                  ) : (
-                    <p key={i} className="text-sm leading-relaxed whitespace-pre-wrap break-words text-mono-800">
-                      {part.content}
-                    </p>
-                  )
-                )}
-              </div>
-            )}
-          </div>
+              {showPdfViewer && isPdf && (
+                <iframe
+                  src={message.file_url}
+                  className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
+                />
+              )}
+
+              {showPdfViewer && isTxt && (
+                <iframe
+                  src={message.file_url}
+                  className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
+                />
+              )}
+            </div>
+          )}
+
+          {/* Text message with code blocks */}
+          {message.message_type !== 'file' && (
+            <div className="space-y-2">
+              {contentParts.map((part, i) =>
+                part.type === 'code' ? (
+                  <div key={i} className="overflow-hidden rounded-lg -mx-1 my-1">
+                    <CodeBlock code={part.content} language={part.language} />
+                  </div>
+                ) : (
+                  <p key={i} className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    {part.content}
+                  </p>
+                )
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Actions - always visible on mobile */}
-        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
+        {/* Actions - visible on hover */}
+        <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
           <Button
             size="sm"
             variant="ghost"
             onClick={onReply}
-            className="icon-btn-sm"
+            className="h-7 w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200"
           >
             <Reply className="w-3.5 h-3.5" />
           </Button>
@@ -215,7 +220,7 @@ export const MessageBubble = ({
           {(isHost || isOwn) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost" className="icon-btn-sm">
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200">
                   <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -243,6 +248,11 @@ export const MessageBubble = ({
           )}
         </div>
       </div>
+
+      {/* Time for own messages - below bubble */}
+      {isOwn && (
+        <span className="text-[10px] text-mono-500 mt-1 mr-2">{time}</span>
+      )}
     </div>
   );
 };
