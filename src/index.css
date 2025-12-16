@@ -209,10 +209,6 @@
     @apply flex items-center gap-2 px-3 py-2 bg-mono-100 rounded-lg border border-mono-200;
   }
 
-  /* Message bubble base */
-  .bubble-base {
-    @apply rounded-md border border-mono-300 bg-mono-50 px-3 sm:px-4 py-2 sm:py-3 overflow-hidden;
-  }
 
   .glow-primary {
     box-shadow: 0 0 20px hsl(var(--mono-500) / 0.2),
