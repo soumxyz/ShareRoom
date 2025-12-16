@@ -106,7 +106,7 @@ export const MessageBubble = ({
   return (
     <div
       id={`message-${message.id}`}
-      className={`group flex flex-col ${isOwn ? 'items-end' : 'items-start'} mb-3`}
+      className={`group flex flex-col ${isOwn ? 'items-end animate-message-send' : 'items-start'} mb-3`}
     >
       {/* Reply reference */}
       {replyMessage && (
