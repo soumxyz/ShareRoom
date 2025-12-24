@@ -82,12 +82,23 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-mono-0 overflow-x-hidden">
-      {/* Background effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-mono-300/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-mono-400/10 rounded-full blur-[100px]" />
-      </div>
+    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+      {/* Top Spotlight Background */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(
+              circle at top,
+              rgba(255, 255, 255, 0.08) 0%,
+              rgba(255, 255, 255, 0.08) 20%,
+              rgba(0, 0, 0, 0.0) 60%
+            )
+          `,
+        }}
+      />
+      {/* Your Content Here */}
+      <div className="flex flex-col min-h-screen">
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
@@ -156,6 +167,7 @@ const Index = () => {
       <footer className="relative z-10 text-center p-4 text-xs text-mono-400 shrink-0">
         <p className="hidden sm:block">Press ESC twice to panic close</p>
       </footer>
+      </div>
     </div>
   );
 };
