@@ -180,7 +180,24 @@ const Room = () => {
   if (!room) return null;
 
   return (
+<<<<<<< HEAD
     <div className="h-[100dvh] flex flex-col bg-mono-0 overflow-hidden">
+=======
+    <div className="min-h-screen w-full bg-black relative">
+      {/* Vercel Grid */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+      {/* Your Content/Components */}
+      <div className="h-screen flex flex-col relative z-10">
+>>>>>>> 901ae2a (changed the background of chatting room)
       {/* Header */}
       <RoomHeader
         roomCode={room.code}
@@ -285,6 +302,7 @@ const Room = () => {
       {/* Panic hint - hidden on mobile */}
       <div className="hidden sm:block absolute bottom-24 left-4 text-xs text-mono-400/40">
         ESC×2 to panic close
+      </div>
       </div>
     </div>
   );
