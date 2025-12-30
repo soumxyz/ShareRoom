@@ -4,6 +4,7 @@ import { Logo } from '@/components/shareroom/Logo';
 import { UsernameForm } from '@/components/shareroom/UsernameForm';
 import { RoomOptions } from '@/components/shareroom/RoomOptions';
 import { RoomCreated } from '@/components/shareroom/RoomCreated';
+import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
 import { useTheme } from '@/hooks/useTheme';
@@ -83,21 +84,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full bg-black relative overflow-hidden">
-      {/* Top Spotlight Background */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(
-              circle at top,
-              rgba(255, 255, 255, 0.08) 0%,
-              rgba(255, 255, 255, 0.08) 20%,
-              rgba(0, 0, 0, 0.0) 60%
-            )
-          `,
-        }}
-      />
-      {/* Your Content Here */}
+      {/* Spline 3D Background */}
+      <SplineBackground />
+      
       <div className="flex flex-col min-h-screen">
 
       {/* Header */}
