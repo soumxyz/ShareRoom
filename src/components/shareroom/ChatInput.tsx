@@ -119,7 +119,7 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-end gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-xl ">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-full border border-mono-200/50">
         <input
           ref={fileInputRef}
           type="file"
@@ -134,12 +134,12 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 icon-btn-md"
+          className="shrink-0 h-9 w-9 rounded-full"
         >
           <Paperclip className="w-4 h-4" />
         </Button>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex items-end gap-1.5 sm:gap-2 min-w-0">
+        <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
           <div className="flex-1 min-w-0">
             <Textarea
               value={message}
@@ -159,7 +159,7 @@ export const ChatInput = ({
             size="icon"
             onClick={() => setCodeMode(!codeMode)}
             disabled={disabled}
-            className={`shrink-0 h-8 w-8 ${codeMode ? 'bg-mono-700 hover:bg-mono-600 text-mono-100' : 'text-mono-500 hover:text-mono-800 hover:bg-mono-200'}`}
+            className={`shrink-0 h-9 w-9 rounded-full ${codeMode ? 'bg-mono-700 hover:bg-mono-600 text-mono-100' : 'text-mono-500 hover:text-mono-800 hover:bg-mono-200'}`}
             title={codeMode ? "Code mode ON (click to turn off)" : "Code mode OFF (click to turn on)"}
           >
             <Code className="w-4 h-4" />
@@ -169,9 +169,9 @@ export const ChatInput = ({
             type="submit"
             size="icon"
             disabled={disabled || (!message.trim() && !pastedImage) || sending}
-            className="shrink-0 bg-mono-700 hover:bg-mono-600 text-mono-100 h-8 w-8 disabled:opacity-40"
+            className="shrink-0 bg-green-500 hover:bg-green-600 text-white h-9 w-9 rounded-full disabled:opacity-40 disabled:bg-gray-400"
           >
-            {sending ? <LoaderOne className="text-mono-100" /> : <Send className="w-4 h-4" />}
+            {sending ? <LoaderOne className="text-white" /> : <Send className="w-4 h-4" />}
           </Button>
         </form>
       </div>

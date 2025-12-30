@@ -257,15 +257,13 @@ const Room = () => {
 
         {/* Input - floating at bottom */}
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[780px] px-4">
-          <div className="bg-mono-50/80 backdrop-blur-md rounded-xl border border-mono-300/50 shadow-lg">
-            <ChatInput
-              onSend={handleSend}
-              onFileUpload={sendFile}
-              replyTo={replyTo}
-              onCancelReply={() => setReplyTo(null)}
-              disabled={participant?.is_muted}
-            />
-          </div>
+          <ChatInput
+            onSend={handleSend}
+            onFileUpload={sendFile}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+            disabled={participant?.is_muted}
+          />
         </div>
       </div>
       </div>
