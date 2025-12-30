@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Button as StatefulButton } from '@/components/ui/stateful-button';
 import { Input } from '@/components/ui/input';
 import { Plus, LogIn, Hash } from 'lucide-react';
 
 interface RoomOptionsProps {
-  onCreateRoom: () => void;
+  onCreateRoom: () => Promise<void>;
   onJoinRoom: (code: string) => void;
   loading?: boolean;
 }
@@ -72,14 +73,13 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
 
   return (
     <div className="w-full max-w-sm space-y-4 animate-fade-in">
-      <Button
+      <StatefulButton
         onClick={onCreateRoom}
-        disabled={loading}
-        className="w-full h-14 bg-mono-200 hover:bg-mono-300 text-mono-900 font-semibold text-lg border border-mono-300 transition-all"
+        className="w-full h-14 bg-white hover:bg-gray-50 text-black font-semibold text-lg border border-gray-300 transition-all"
       >
         <Plus className="mr-2 w-5 h-5" />
-        {loading ? 'Creating...' : 'Create Room'}
-      </Button>
+        Create Room
+      </StatefulButton>
       <Button
         onClick={() => setMode('join')}
         variant="outline"

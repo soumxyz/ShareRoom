@@ -180,9 +180,6 @@ const Room = () => {
   if (!room) return null;
 
   return (
-<<<<<<< HEAD
-    <div className="h-[100dvh] flex flex-col bg-mono-0 overflow-hidden">
-=======
     <div className="min-h-screen w-full bg-black relative">
       {/* Vercel Grid */}
       <div
@@ -197,7 +194,6 @@ const Room = () => {
       />
       {/* Your Content/Components */}
       <div className="h-screen flex flex-col relative z-10">
->>>>>>> 901ae2a (changed the background of chatting room)
       {/* Header */}
       <RoomHeader
         roomCode={room.code}
