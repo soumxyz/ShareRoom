@@ -83,7 +83,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+    <div className="min-h-screen w-full bg-gradient-to-b from-neutral-900 to-neutral-700 relative overflow-hidden">
       {/* Spline 3D Background */}
       <SplineBackground />
       
@@ -103,14 +103,10 @@ const Index = () => {
           {/* Hero section */}
           {step === 'username' && (
             <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mono-200 border border-mono-300 text-mono-700 text-xs sm:text-sm mb-2 sm:mb-4">
-                <Terminal className="w-4 h-4" />
-                Anonymous · Temporary · Secure
-              </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-mono-900">
                 Share Code Instantly
               </h1>
-              <p className="text-mono-500 text-base sm:text-lg max-w-sm mx-auto">
+              <p className="text-white/90 text-base sm:text-lg max-w-sm mx-auto">
                 Create temporary chat rooms to share code, text, and files in real-time. No signup required.
               </p>
             </div>
