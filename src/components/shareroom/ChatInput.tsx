@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Paperclip, Code, X } from 'lucide-react';
+import { LoaderOne } from '@/components/ui/loader';
 
 interface ChatInputProps {
   onSend: (content: string) => void;
@@ -20,19 +21,30 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const [codeMode, setCodeMode] = useState(false);
+  const [pastedImage, setPastedImage] = useState<File | null>(null);
+  const [sending, setSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() && !disabled) {
-      if (codeMode) {
-        // Wrap the message in code block, preserving exact indentation
-        const codeBlock = `\`\`\`\n${message}\n\`\`\``;
-        onSend(codeBlock);
-      } else {
-        onSend(message.trim());
+    if (sending) return;
+    
+    setSending(true);
+    try {
+      if (pastedImage) {
+        await onFileUpload(pastedImage);
+        setPastedImage(null);
+      } else if (message.trim() && !disabled) {
+        if (codeMode) {
+          const codeBlock = `\`\`\`\n${message}\n\`\`\``;
+          await onSend(codeBlock);
+        } else {
+          await onSend(message.trim());
+        }
+        setMessage('');
       }
-      setMessage('');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -40,6 +52,21 @@ export const ChatInput = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            setPastedImage(file);
+            e.preventDefault();
+          }
+        }
+      }
     }
   };
 
@@ -75,11 +102,28 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-end gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-xl border border-mono-200">
+      {/* Pasted image preview */}
+      {pastedImage && (
+        <div className="mb-2 p-2 bg-mono-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-mono-600">Image ready to send</span>
+            <Button size="sm" variant="ghost" onClick={() => setPastedImage(null)} className="h-6 w-6 p-0">
+              <X className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+          <img 
+            src={URL.createObjectURL(pastedImage)} 
+            alt="Pasted screenshot" 
+            className="max-w-full max-h-32 rounded object-contain"
+          />
+        </div>
+      )}
+
+      <div className="flex items-end gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-xl ">
         <input
           ref={fileInputRef}
           type="file"
-          accept=".txt,.java,.c,.py,.cpp,.zip,.pdf"
+          accept=".txt,.java,.c,.py,.cpp,.zip,.pdf,.jpg,.jpeg,.png,.gif,.webp"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -101,9 +145,10 @@ export const ChatInput = ({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={codeMode ? "Type code..." : "Type a message..."}
+              onPaste={handlePaste}
+              placeholder={pastedImage ? "Press Enter to send image" : (codeMode ? "Type code..." : "Type a message...")}
               disabled={disabled}
-              className={`min-h-[36px] sm:min-h-[40px] max-h-[120px] sm:max-h-[200px] resize-none bg-transparent border-0 text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[36px] sm:min-h-[40px] max-h-[120px] sm:max-h-[200px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
               rows={1}
             />
           </div>
@@ -123,10 +168,10 @@ export const ChatInput = ({
           <Button
             type="submit"
             size="icon"
-            disabled={disabled || !message.trim()}
+            disabled={disabled || (!message.trim() && !pastedImage) || sending}
             className="shrink-0 bg-mono-700 hover:bg-mono-600 text-mono-100 h-8 w-8 disabled:opacity-40"
           >
-            <Send className="w-4 h-4" />
+            {sending ? <LoaderOne className="text-mono-100" /> : <Send className="w-4 h-4" />}
           </Button>
         </form>
       </div>

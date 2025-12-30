@@ -275,13 +275,13 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   const sendFile = async (file: File) => {
     if (!room || !participant) return;
 
-    const allowedTypes = ['.txt', '.java', '.c', '.py', '.cpp', '.zip', '.pdf'];
+    const allowedTypes = ['.txt', '.java', '.c', '.py', '.cpp', '.zip', '.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp'];
     const ext = '.' + file.name.split('.').pop()?.toLowerCase();
     
     if (!allowedTypes.includes(ext)) {
       toast({
         title: 'Invalid file type',
-        description: 'Only .txt, .java, .c, .py, .cpp, .zip, .pdf files allowed',
+        description: 'Only .txt, .java, .c, .py, .cpp, .zip, .pdf, .jpg, .jpeg, .png, .gif, .webp files allowed',
         variant: 'destructive',
       });
       return;

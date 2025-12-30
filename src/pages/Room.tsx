@@ -9,6 +9,7 @@ import { ChatInput } from '@/components/shareroom/ChatInput';
 import { FakeScreen } from '@/components/shareroom/FakeScreen';
 import { ParticipantsList } from '@/components/shareroom/ParticipantsList';
 import { Loader2, AlertCircle, EyeOff } from 'lucide-react';
+import { LoaderOne } from '@/components/ui/loader';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint } from '@/lib/fingerprint';
@@ -151,9 +152,8 @@ const Room = () => {
   if (loading || !accessChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-mono-0">
-        <div className="text-center space-y-3">
-          <Loader2 className="w-10 h-10 animate-spin text-mono-600 mx-auto" />
-          <p className="text-mono-500 text-sm">Connecting to room...</p>
+        <div className="flex items-center justify-center">
+          <LoaderOne className="text-mono-600 scale-[2]" />
         </div>
       </div>
     );
@@ -201,6 +201,7 @@ const Room = () => {
         isLocked={room.is_locked}
         isHost={isHost}
         participantCount={participants.length}
+        participants={participants}
         theme={theme}
         onBack={handleBack}
         onToggleLock={toggleLock}
@@ -209,38 +210,11 @@ const Room = () => {
 
       {/* Main content area with max-width */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Toolbar */}
-        <div className="border-b border-mono-300 bg-mono-50 shrink-0">
-          <div className="max-w-[780px] mx-auto w-full px-4">
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-2">
-                <ParticipantsList
-                  participants={participants}
-                  currentUserId={participant?.id || null}
-                  hostFingerprint={room.host_fingerprint}
-                  isHost={isHost}
-                  onMuteUser={muteUser}
-                  onKickUser={(id) => kickUser(id, true)}
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setFakeMode(true)}
-                className="text-mono-500 hover:text-mono-800 hover:bg-mono-200 h-8 px-2 sm:px-3 text-xs"
-              >
-                <EyeOff className="w-4 h-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">Fake Screen</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* Messages */}
         <div 
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
+          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-20"
         >
           <div className="max-w-[780px] mx-auto w-full px-4 py-4 sm:py-6">
             <div className="space-y-3">
@@ -281,9 +255,9 @@ const Room = () => {
           </div>
         </div>
 
-        {/* Input - fixed at bottom */}
-        <div className="border-t border-mono-300 bg-mono-50 shrink-0">
-          <div className="max-w-[780px] mx-auto w-full px-4">
+        {/* Input - floating at bottom */}
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[780px] px-4">
+          <div className="bg-mono-50/80 backdrop-blur-md rounded-xl border border-mono-300/50 shadow-lg">
             <ChatInput
               onSend={handleSend}
               onFileUpload={sendFile}
@@ -293,11 +267,6 @@ const Room = () => {
             />
           </div>
         </div>
-      </div>
-
-      {/* Panic hint - hidden on mobile */}
-      <div className="hidden sm:block absolute bottom-24 left-4 text-xs text-mono-400/40">
-        ESC×2 to panic close
       </div>
       </div>
     </div>

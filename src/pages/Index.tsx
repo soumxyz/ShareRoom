@@ -7,9 +7,8 @@ import { RoomCreated } from '@/components/shareroom/RoomCreated';
 import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
-import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Terminal } from 'lucide-react';
+import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 
 type Step = 'username' | 'options' | 'created';
 
@@ -19,7 +18,6 @@ const Index = () => {
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [joinCode, setJoinCode] = useState<string | null>(null);
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -92,9 +90,6 @@ const Index = () => {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
         <Logo size="md" />
-        <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-mono-600 hover:text-mono-800 hover:bg-mono-200">
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </Button>
       </header>
 
       {/* Main content */}
@@ -102,9 +97,9 @@ const Index = () => {
         <div className="w-full max-w-md flex flex-col items-center gap-6 sm:gap-8">
           {/* Hero section */}
           {step === 'username' && (
-            <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
+            <div className="text-center space-y-6 animate-fade-in">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-mono-900">
-                Share Code Instantly
+                <FlipWordsDemo />
               </h1>
               <p className="text-white/90 text-base sm:text-lg max-w-sm mx-auto">
                 Create temporary chat rooms to share code, text, and files in real-time. No signup required.
@@ -114,8 +109,8 @@ const Index = () => {
 
           {step === 'options' && (
             <div className="text-center animate-fade-in">
-              <p className="text-mono-500 mb-2">Welcome,</p>
-              <p className="text-xl sm:text-2xl font-bold text-mono-800 font-mono truncate max-w-[280px]">{username}</p>
+              <p className="text-white/70 mb-2">Welcome,</p>
+              <p className="text-xl sm:text-2xl font-bold text-white/90 font-mono truncate max-w-[280px]">{username}</p>
             </div>
           )}
 
@@ -140,7 +135,7 @@ const Index = () => {
           {step === 'options' && (
             <button
               onClick={() => setStep('username')}
-              className="text-sm text-mono-500 hover:text-mono-700 transition-colors"
+              className="text-sm text-white/70 hover:text-white/90 transition-colors"
             >
               ← Change username
             </button>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Reply, Trash2, MoreVertical, VolumeX, UserX, ExternalLink, FileText, File } from 'lucide-react';
+import { Reply, Trash2, MoreVertical, VolumeX, UserX, ExternalLink, FileText, File, Image } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import {
   DropdownMenu,
@@ -102,6 +102,7 @@ export const MessageBubble = ({
 
   const isPdf = message.file_type?.includes('pdf');
   const isTxt = message.file_name?.endsWith('.txt');
+  const isImage = message.file_type?.startsWith('image/');
 
   return (
     <div
@@ -141,49 +142,68 @@ export const MessageBubble = ({
           {/* File message */}
           {message.message_type === 'file' && message.file_url && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                {isPdf ? (
-                  <FileText className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-destructive'}`} />
-                ) : (
-                  <File className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-400' : 'text-mono-500'}`} />
-                )}
-                <span className={`font-mono text-xs sm:text-sm break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
-                  {message.file_name}
-                </span>
-              </div>
-              
-              <div className="flex gap-3">
-                <a
-                  href={message.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center gap-1 text-xs hover:underline ${isOwn ? 'text-mono-300 hover:text-mono-100' : 'text-mono-600 hover:text-mono-800'}`}
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Open
-                </a>
-                {(isPdf || isTxt) && (
-                  <button
-                    onClick={() => setShowPdfViewer(!showPdfViewer)}
-                    className={`text-xs ${isOwn ? 'text-mono-400 hover:text-mono-200' : 'text-mono-500 hover:text-mono-700'}`}
-                  >
-                    {showPdfViewer ? 'Hide' : 'Preview'}
-                  </button>
-                )}
-              </div>
+              {isImage ? (
+                <div className="space-y-2">
+                  <img
+                    src={message.file_url}
+                    alt={message.file_name || 'Shared image'}
+                    className="max-w-full max-h-[300px] rounded-lg object-contain"
+                    loading="lazy"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Image className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-mono-600'}`} />
+                    <span className={`font-mono text-xs break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
+                      {message.file_name}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    {isPdf ? (
+                      <FileText className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-destructive'}`} />
+                    ) : (
+                      <File className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-400' : 'text-mono-500'}`} />
+                    )}
+                    <span className={`font-mono text-xs sm:text-sm break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
+                      {message.file_name}
+                    </span>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <a
+                      href={message.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-1 text-xs hover:underline ${isOwn ? 'text-mono-300 hover:text-mono-100' : 'text-mono-600 hover:text-mono-800'}`}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      Open
+                    </a>
+                    {(isPdf || isTxt) && (
+                      <button
+                        onClick={() => setShowPdfViewer(!showPdfViewer)}
+                        className={`text-xs ${isOwn ? 'text-mono-400 hover:text-mono-200' : 'text-mono-500 hover:text-mono-700'}`}
+                      >
+                        {showPdfViewer ? 'Hide' : 'Preview'}
+                      </button>
+                    )}
+                  </div>
 
-              {showPdfViewer && isPdf && (
-                <iframe
-                  src={message.file_url}
-                  className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
-                />
-              )}
+                  {showPdfViewer && isPdf && (
+                    <iframe
+                      src={message.file_url}
+                      className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
+                    />
+                  )}
 
-              {showPdfViewer && isTxt && (
-                <iframe
-                  src={message.file_url}
-                  className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
-                />
+                  {showPdfViewer && isTxt && (
+                    <iframe
+                      src={message.file_url}
+                      className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
+                    />
+                  )}
+                </>
               )}
             </div>
           )}

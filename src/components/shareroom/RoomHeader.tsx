@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Copy, Check, Lock, Unlock, Users, Moon, Sun, Shield } from 'lucide-react';
 import { Logo } from './Logo';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface RoomHeaderProps {
   roomCode: string;
@@ -9,6 +15,7 @@ interface RoomHeaderProps {
   isLocked: boolean;
   isHost: boolean;
   participantCount: number;
+  participants: any[];
   theme: 'dark' | 'light';
   onBack: () => void;
   onToggleLock: () => void;
@@ -21,6 +28,7 @@ export const RoomHeader = ({
   isLocked,
   isHost,
   participantCount,
+  participants,
   theme,
   onBack,
   onToggleLock,
@@ -35,32 +43,41 @@ export const RoomHeader = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-mono-200 bg-mono-50">
-      <div className="flex items-center justify-between px-4 md:px-5 h-12">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="shrink-0 icon-btn-md"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <Logo size="sm" showText={false} />
-          <div className="hidden sm:block ml-1">
-            <h1 className="font-medium text-sm text-mono-800 leading-tight">{roomName}</h1>
-            <div className="flex items-center gap-1.5 text-xs text-mono-500">
-              <Users className="w-3 h-3" />
-              <span>{participantCount} online</span>
+    <header className="sticky top-0 z-50 p-2">
+      <div className="flex items-center justify-between">
+        {/* Left side - Back button and room info pills close together */}
+        <div className="flex items-center gap-2 pt-1">
+          {/* Back button pill */}
+          <div className="flex items-center px-2 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              className="shrink-0 h-8 w-8 rounded-full"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Room info pill */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
+            <Logo size="sm" showText={false} />
+            <div className="hidden sm:block ml-1">
+              <h1 className="font-medium text-sm text-mono-800 leading-tight">{roomName}</h1>
+              <div className="flex items-center gap-1.5 text-xs text-mono-500">
+                <Users className="w-3 h-3" />
+                <span>{participantCount} online</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        {/* Right side - Controls pill */}
+        <div className="flex items-center gap-1.5 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm pt-1">
           {/* Room code */}
           <button
             onClick={copyCode}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-mono-100 hover:bg-mono-200 transition-colors border border-mono-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50"
           >
             <span className="font-mono text-xs tracking-wider text-mono-700">{roomCode}</span>
             {copied ? (
@@ -70,33 +87,40 @@ export const RoomHeader = ({
             )}
           </button>
 
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50">
+                <Users className="w-3.5 h-3.5 text-mono-600" />
+                <span className="text-xs text-mono-700">{participantCount}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-mono-100 border-mono-300">
+              {participants.map((participant) => (
+                <DropdownMenuItem key={participant.id} className="text-mono-800">
+                  {participant.username}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Host controls */}
           {isHost && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onToggleLock}
-              className={`icon-btn-md ${isLocked ? 'text-warning hover:text-warning' : ''}`}
+              className={`h-8 w-8 rounded-full ${isLocked ? 'text-warning hover:text-warning' : ''}`}
             >
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
           )}
 
           {isHost && (
-            <div className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded bg-mono-100 text-mono-600 text-xs border border-mono-200">
+            <div className="hidden sm:flex items-center gap-1 px-3 py-1 rounded-full bg-mono-100/80 text-mono-600 text-xs border border-mono-200/50">
               <Shield className="w-3 h-3" />
               Host
             </div>
           )}
-
-          {/* Theme toggle */}
-          <Button variant="ghost" size="icon" onClick={onToggleTheme} className="icon-btn-md">
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4" />
-            ) : (
-              <Moon className="w-4 h-4" />
-            )}
-          </Button>
         </div>
       </div>
     </header>
