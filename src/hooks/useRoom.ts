@@ -325,8 +325,45 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   };
 
   const deleteMessage = async (messageId: string) => {
-    if (!isHost) return;
-    await supabase.from('messages').delete().eq('id', messageId);
+    if (!isHost && !participant) return;
+    
+    // Check if user can delete (host or message owner)
+    const message = messages.find(m => m.id === messageId);
+    if (!message) return;
+    
+    const canDelete = isHost || message.participant_id === participant?.id;
+    if (!canDelete) return;
+
+    try {
+      // Optimistically remove from local state first
+      setMessages(prev => prev.filter(m => m.id !== messageId));
+      
+      // Then delete from database
+      const { error } = await supabase.from('messages').delete().eq('id', messageId);
+      
+      if (error) {
+        // If deletion failed, restore the message
+        const { data: restoredMessage } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('id', messageId)
+          .single();
+        
+        if (restoredMessage) {
+          setMessages(prev => [...prev, restoredMessage].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          ));
+        }
+        
+        toast({
+          title: 'Delete failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err);
+    }
   };
 
   const muteUser = async (participantId: string) => {

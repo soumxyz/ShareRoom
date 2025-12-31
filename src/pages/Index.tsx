@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
+import { Typewriter } from '@/components/ui/typewriter';
 import { ChatGPTPlaceholder } from '@/components/ui/chatgpt-placeholder';
 
 type Step = 'username' | 'options' | 'created';
@@ -135,8 +136,9 @@ const Index = () => {
 
           {step === 'options' && (
             <div className="text-center animate-fade-in w-full">
-              <p className="text-white/70 mb-2 text-sm">Welcome,</p>
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate max-w-full px-4">{username}</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate whitespace-nowrap overflow-hidden">
+                <span className="text-white font-normal">Welcome, </span><Typewriter text={username} className="font-bold" speed={150} />
+              </p>
             </div>
           )}
 
@@ -159,12 +161,16 @@ const Index = () => {
 
           {/* Back button */}
           {step === 'options' && (
-            <button
-              onClick={() => setStep('username')}
-              className="text-sm text-white/70 hover:text-white/90 transition-colors"
-            >
-              ← Change username
-            </button>
+            <div className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
+              <button
+                onClick={() => setStep('username')}
+                className="h-7 w-7 rounded-full flex items-center justify-center text-white hover:text-white/80 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+              </button>
+            </div>
           )}
         </div>
       </main>
