@@ -335,26 +335,10 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     if (!canDelete) return;
 
     try {
-      // Optimistically remove from local state first
-      setMessages(prev => prev.filter(m => m.id !== messageId));
-      
-      // Then delete from database
+      // Delete from database first - this will trigger realtime update for all users
       const { error } = await supabase.from('messages').delete().eq('id', messageId);
       
       if (error) {
-        // If deletion failed, restore the message
-        const { data: restoredMessage } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('id', messageId)
-          .single();
-        
-        if (restoredMessage) {
-          setMessages(prev => [...prev, restoredMessage].sort((a, b) => 
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-          ));
-        }
-        
         toast({
           title: 'Delete failed',
           description: error.message,
@@ -363,6 +347,11 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       }
     } catch (err) {
       console.error('Error deleting message:', err);
+      toast({
+        title: 'Delete failed',
+        description: 'Failed to delete message',
+        variant: 'destructive',
+      });
     }
   };
 
