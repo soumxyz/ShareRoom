@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
+import { LoaderFour } from '@/components/ui/loader';
 
 type Step = 'username' | 'options' | 'created';
 
@@ -18,6 +19,7 @@ const Index = () => {
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [joinCode, setJoinCode] = useState<string | null>(null);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -35,6 +37,29 @@ const Index = () => {
     if (saved) {
       setUsername(saved);
     }
+  }, []);
+
+  // Handle page load
+  useEffect(() => {
+    let mounted = true;
+    
+    const checkLoaded = () => {
+      if (!mounted) return;
+      
+      if (document.readyState === 'complete') {
+        setTimeout(() => {
+          if (mounted) setIsPageLoaded(true);
+        }, 1500);
+      } else {
+        setTimeout(checkLoaded, 100);
+      }
+    };
+    
+    checkLoaded();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleUsernameSubmit = (name: string) => {
@@ -88,20 +113,20 @@ const Index = () => {
       <div className="flex flex-col min-h-screen">
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
+      <header className="relative z-10 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 shrink-0">
         <Logo size="md" />
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 sm:pb-20">
-        <div className="w-full max-w-md flex flex-col items-center gap-6 sm:gap-8">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-3 sm:px-4 py-4 sm:py-8">
+        <div className="w-full max-w-xs sm:max-w-md flex flex-col items-center gap-4 sm:gap-6 px-4">
           {/* Hero section */}
           {step === 'username' && (
-            <div className="text-center space-y-6 animate-fade-in">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-mono-900">
+            <div className="text-center space-y-4 sm:space-y-6 animate-fade-in">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mono-900">
                 <FlipWordsDemo />
               </h1>
-              <p className="text-white/90 text-base sm:text-lg max-w-sm mx-auto">
+              <p className="text-white/90 text-sm sm:text-base lg:text-lg mx-auto px-4 leading-relaxed text-center">
                 Create temporary chat rooms to share code, text, and files in real-time. No signup required.
               </p>
             </div>

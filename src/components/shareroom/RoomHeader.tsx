@@ -59,10 +59,10 @@ export const RoomHeader = ({
             </Button>
           </div>
 
-          {/* Room info pill */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
+          {/* Room info pill - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
             <Logo size="sm" showText={false} />
-            <div className="hidden sm:block ml-1">
+            <div className="ml-1">
               <h1 className="font-medium text-sm text-mono-800 leading-tight">{roomName}</h1>
               <div className="flex items-center gap-1.5 text-xs text-mono-500">
                 <Users className="w-3 h-3" />
@@ -73,11 +73,11 @@ export const RoomHeader = ({
         </div>
 
         {/* Right side - Controls pill */}
-        <div className="flex items-center gap-1.5 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm pt-1">
+        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm pt-1">
           {/* Room code */}
           <button
             onClick={copyCode}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50"
+            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50"
           >
             <span className="font-mono text-xs tracking-wider text-mono-700">{roomCode}</span>
             {copied ? (
@@ -89,7 +89,7 @@ export const RoomHeader = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50">
+              <button className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50">
                 <Users className="w-3.5 h-3.5 text-mono-600" />
                 <span className="text-xs text-mono-700">{participantCount}</span>
               </button>
@@ -116,7 +116,7 @@ export const RoomHeader = ({
           )}
 
           {isHost && (
-            <div className="hidden sm:flex items-center gap-1 px-3 py-1 rounded-full bg-mono-100/80 text-mono-600 text-xs border border-mono-200/50">
+            <div className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full bg-mono-100/80 text-mono-600 text-xs border border-mono-200/50">
               <Shield className="w-3 h-3" />
               Host
             </div>

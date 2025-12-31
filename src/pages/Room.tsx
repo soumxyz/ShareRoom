@@ -214,12 +214,12 @@ const Room = () => {
         <div 
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-20"
+          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-16 sm:pb-20"
         >
-          <div className="max-w-[780px] mx-auto w-full px-4 py-4 sm:py-6">
-            <div className="space-y-3">
+          <div className="max-w-[95%] sm:max-w-[780px] mx-auto w-full px-2 sm:px-4 py-2 sm:py-4">
+            <div className="space-y-2 sm:space-y-3">
               {messages.length === 0 && (
-                <div className="text-center py-12 sm:py-16 text-mono-500">
+                <div className="text-center py-8 sm:py-12 text-mono-500">
                   <p className="text-sm">No messages yet. Start the conversation!</p>
                 </div>
               )}
@@ -256,7 +256,7 @@ const Room = () => {
         </div>
 
         {/* Input - floating at bottom */}
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[780px] px-4">
+        <div className="fixed bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[95%] sm:max-w-[780px] px-2 sm:px-4">
           <ChatInput
             onSend={handleSend}
             onFileUpload={sendFile}

@@ -130,10 +130,10 @@ export const MessageBubble = ({
         </div>
       )}
 
-      <div className={`flex items-end gap-2 max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex items-end gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
         {/* Message bubble */}
         <div
-          className={`relative px-4 py-2.5 rounded-2xl ${
+          className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-sm ${
             isOwn
               ? 'bg-mono-800 text-mono-50 rounded-br-md'
               : 'bg-mono-200 text-mono-800 rounded-bl-md'
@@ -232,16 +232,16 @@ export const MessageBubble = ({
             size="sm"
             variant="ghost"
             onClick={onReply}
-            className="h-7 w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200"
+            className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200"
           >
-            <Reply className="w-3.5 h-3.5" />
+            <Reply className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </Button>
 
           {(isHost || isOwn) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200">
-                  <MoreVertical className="w-3.5 h-3.5" />
+                <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200">
+                  <MoreVertical className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-mono-100 border-mono-300">

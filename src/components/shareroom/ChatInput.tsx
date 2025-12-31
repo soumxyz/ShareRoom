@@ -119,7 +119,7 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-full border border-mono-200/50">
+      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-full border border-mono-200/50">
         <input
           ref={fileInputRef}
           type="file"
@@ -134,12 +134,12 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 h-9 w-9 rounded-full"
+          className="shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full"
         >
           <Paperclip className="w-4 h-4" />
         </Button>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
+        <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1 sm:gap-2 min-w-0">
           <div className="flex-1 min-w-0">
             <Textarea
               value={message}
@@ -148,7 +148,7 @@ export const ChatInput = ({
               onPaste={handlePaste}
               placeholder={pastedImage ? "Press Enter to send image" : (codeMode ? "Type code..." : "Type a message...")}
               disabled={disabled}
-              className={`min-h-[36px] sm:min-h-[40px] max-h-[120px] sm:max-h-[200px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[32px] sm:min-h-[36px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
               rows={1}
             />
           </div>
@@ -159,19 +159,19 @@ export const ChatInput = ({
             size="icon"
             onClick={() => setCodeMode(!codeMode)}
             disabled={disabled}
-            className={`shrink-0 h-9 w-9 rounded-full ${codeMode ? 'bg-mono-700 hover:bg-mono-600 text-mono-100' : 'text-mono-500 hover:text-mono-800 hover:bg-mono-200'}`}
+            className={`shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full ${codeMode ? 'bg-mono-700 hover:bg-mono-600 text-mono-100' : 'text-mono-500 hover:text-mono-800 hover:bg-mono-200'}`}
             title={codeMode ? "Code mode ON (click to turn off)" : "Code mode OFF (click to turn on)"}
           >
-            <Code className="w-4 h-4" />
+            <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Button>
 
           <Button
             type="submit"
             size="icon"
             disabled={disabled || (!message.trim() && !pastedImage) || sending}
-            className="shrink-0 bg-green-500 hover:bg-green-600 text-white h-9 w-9 rounded-full disabled:opacity-40 disabled:bg-gray-400"
+            className="shrink-0 bg-green-500 hover:bg-green-600 text-white h-8 w-8 sm:h-9 sm:w-9 rounded-full disabled:opacity-40 disabled:bg-gray-400"
           >
-            {sending ? <LoaderOne className="text-white" /> : <Send className="w-4 h-4" />}
+            {sending ? <LoaderOne className="text-white" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </Button>
         </form>
       </div>
