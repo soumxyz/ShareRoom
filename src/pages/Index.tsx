@@ -122,12 +122,12 @@ const Index = () => {
         <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg flex flex-col items-center gap-6 sm:gap-8">
           {/* Hero section */}
           {step === 'username' && (
-            <div className="text-center space-y-4 sm:space-y-6 animate-fade-in w-full">
-              <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-2">
+            <div className="text-center space-y-6 sm:space-y-6 animate-fade-in w-full px-4 sm:px-0">
+              <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-0 sm:px-2">
                                 <span className="block sm:hidden">Share code and files instantly.</span>
                 <span className="hidden sm:block"><FlipWordsDemo /></span>
               </h1>
-              <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-4 leading-relaxed whitespace-nowrap">
+              <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed whitespace-nowrap">
                 Create temporary chat rooms. No signup required.
               </p>
             </div>

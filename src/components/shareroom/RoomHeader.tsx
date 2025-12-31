@@ -48,19 +48,19 @@ export const RoomHeader = ({
         {/* Left side - Back button and room info pills close together */}
         <div className="flex items-center gap-2 pt-1">
           {/* Back button pill */}
-          <div className="flex items-center px-2 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
+          <div className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
             <Button
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="shrink-0 h-8 w-8 rounded-full touch-target"
+              className="shrink-0 h-7 w-7 rounded-full touch-target"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Room info pill - hidden on mobile */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
+          <div className="hidden md:flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition h-12">
             <Logo size="sm" showText={false} />
             <div className="ml-1">
               <h1 className="font-medium text-sm text-mono-800 leading-tight">{roomName}</h1>
@@ -73,7 +73,7 @@ export const RoomHeader = ({
         </div>
 
         {/* Right side - Controls pill */}
-        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg pt-1 smooth-transition">
+        <div className="flex items-center gap-1 md:gap-1.5 px-3 md:px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition h-12">
           {/* Room code */}
           <button
             onClick={copyCode}
@@ -109,7 +109,7 @@ export const RoomHeader = ({
               variant="ghost"
               size="icon"
               onClick={onToggleLock}
-              className={`h-8 w-8 rounded-full touch-target ${isLocked ? 'text-warning hover:text-warning' : ''}`}
+              className={`h-7 w-7 rounded-full touch-target ${isLocked ? 'text-warning hover:text-warning' : ''}`}
             >
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
