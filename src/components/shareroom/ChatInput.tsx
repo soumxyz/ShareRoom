@@ -119,7 +119,7 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-mono-100 rounded-full border border-mono-200/50">
+      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-lg mobile-optimized smooth-transition">
         <input
           ref={fileInputRef}
           type="file"
@@ -148,8 +148,9 @@ export const ChatInput = ({
               onPaste={handlePaste}
               placeholder={pastedImage ? "Press Enter to send image" : (codeMode ? "Type code..." : "Type a message...")}
               disabled={disabled}
-              className={`min-h-[32px] sm:min-h-[36px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[32px] sm:min-h-[36px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm will-change-contents ${codeMode ? 'font-mono' : ''}`}
               rows={1}
+              style={{ WebkitAppearance: 'none' }}
             />
           </div>
 

@@ -43,24 +43,24 @@ export const RoomHeader = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 p-2">
+    <header className="sticky top-0 z-50 p-2 mobile-optimized">
       <div className="flex items-center justify-between">
         {/* Left side - Back button and room info pills close together */}
         <div className="flex items-center gap-2 pt-1">
           {/* Back button pill */}
-          <div className="flex items-center px-2 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
+          <div className="flex items-center px-2 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
             <Button
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="shrink-0 h-8 w-8 rounded-full"
+              className="shrink-0 h-8 w-8 rounded-full touch-target"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Room info pill - hidden on mobile */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm">
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
             <Logo size="sm" showText={false} />
             <div className="ml-1">
               <h1 className="font-medium text-sm text-mono-800 leading-tight">{roomName}</h1>
@@ -73,11 +73,11 @@ export const RoomHeader = ({
         </div>
 
         {/* Right side - Controls pill */}
-        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-2 bg-mono-50/80 backdrop-blur-md rounded-full border border-mono-300/50 shadow-sm pt-1">
+        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg pt-1 smooth-transition">
           {/* Room code */}
           <button
             onClick={copyCode}
-            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50"
+            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50 touch-target"
           >
             <span className="font-mono text-xs tracking-wider text-mono-700">{roomCode}</span>
             {copied ? (
@@ -89,7 +89,7 @@ export const RoomHeader = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50">
+              <button className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50 touch-target">
                 <Users className="w-3.5 h-3.5 text-mono-600" />
                 <span className="text-xs text-mono-700">{participantCount}</span>
               </button>
@@ -109,7 +109,7 @@ export const RoomHeader = ({
               variant="ghost"
               size="icon"
               onClick={onToggleLock}
-              className={`h-8 w-8 rounded-full ${isLocked ? 'text-warning hover:text-warning' : ''}`}
+              className={`h-8 w-8 rounded-full touch-target ${isLocked ? 'text-warning hover:text-warning' : ''}`}
             >
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>

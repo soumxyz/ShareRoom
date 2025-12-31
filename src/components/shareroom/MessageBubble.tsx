@@ -133,11 +133,7 @@ export const MessageBubble = ({
       <div className={`flex items-end gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
         {/* Message bubble */}
         <div
-          className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-sm ${
-            isOwn
-              ? 'bg-mono-800 text-mono-50 rounded-br-md'
-              : 'bg-mono-200 text-mono-800 rounded-bl-md'
-          }`}
+          className={`relative text-sm text-white`}
         >
           {/* File message */}
           {message.message_type === 'file' && message.file_url && (
@@ -151,7 +147,7 @@ export const MessageBubble = ({
                     loading="lazy"
                   />
                   <div className="flex items-center gap-2">
-                    <Image className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-mono-600'}`} />
+                    <Image className={`w-4 h-4 shrink-0 text-white/80`} />
                     <span className={`font-mono text-xs break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
                       {message.file_name}
                     </span>
@@ -161,11 +157,11 @@ export const MessageBubble = ({
                 <>
                   <div className="flex items-center gap-2">
                     {isPdf ? (
-                      <FileText className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-300' : 'text-destructive'}`} />
+                      <FileText className={`w-4 h-4 shrink-0 text-red-400`} />
                     ) : (
-                      <File className={`w-4 h-4 shrink-0 ${isOwn ? 'text-mono-400' : 'text-mono-500'}`} />
+                      <File className={`w-4 h-4 shrink-0 text-white/80`} />
                     )}
-                    <span className={`font-mono text-xs sm:text-sm break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
+                    <span className={`font-mono text-xs sm:text-sm break-all text-white`}>
                       {message.file_name}
                     </span>
                   </div>
@@ -175,7 +171,7 @@ export const MessageBubble = ({
                       href={message.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-1 text-xs hover:underline ${isOwn ? 'text-mono-300 hover:text-mono-100' : 'text-mono-600 hover:text-mono-800'}`}
+                      className={`flex items-center gap-1 text-xs hover:underline text-blue-400 hover:text-blue-300`}
                     >
                       <ExternalLink className="w-3 h-3" />
                       Open
@@ -183,7 +179,7 @@ export const MessageBubble = ({
                     {(isPdf || isTxt) && (
                       <button
                         onClick={() => setShowPdfViewer(!showPdfViewer)}
-                        className={`text-xs ${isOwn ? 'text-mono-400 hover:text-mono-200' : 'text-mono-500 hover:text-mono-700'}`}
+                        className={`text-xs text-white/70 hover:text-white/90`}
                       >
                         {showPdfViewer ? 'Hide' : 'Preview'}
                       </button>
@@ -213,13 +209,15 @@ export const MessageBubble = ({
             <div className="space-y-2">
               {contentParts.map((part, i) =>
                 part.type === 'code' ? (
-                  <div key={i} className="overflow-hidden rounded-lg -mx-1 my-1">
+                  <div key={i} className="overflow-hidden rounded-lg -mx-1 my-1 bg-transparent">
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (
-                  <p key={i} className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                    {part.content}
-                  </p>
+                  <div key={i} className="bg-white text-black px-3 sm:px-4 py-2 sm:py-2.5 rounded-full">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                      {part.content}
+                    </p>
+                  </div>
                 )
               )}
             </div>

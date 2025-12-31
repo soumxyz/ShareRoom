@@ -97,14 +97,28 @@ const Room = () => {
     checkAccess();
   }, [code, username, navigate]);
 
-  // Track scroll position
+  // Track scroll position with throttling for better performance
   const handleScroll = useCallback(() => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const threshold = 150; // More generous threshold
+      const threshold = 150;
       setIsAtBottom(scrollHeight - scrollTop - clientHeight < threshold);
     }
   }, []);
+
+  // Throttled scroll handler for performance
+  const throttledHandleScroll = useCallback(() => {
+    let ticking = false;
+    return () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+  }, [handleScroll]);
 
   // Auto scroll to bottom only when user is at bottom
   useEffect(() => {
@@ -183,7 +197,7 @@ const Room = () => {
     <div className="min-h-screen w-full bg-black relative">
       {/* Vercel Grid */}
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
@@ -213,8 +227,9 @@ const Room = () => {
         {/* Messages */}
         <div 
           ref={messagesContainerRef}
-          onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-16 sm:pb-20"
+          onScroll={throttledHandleScroll()}
+          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-16 sm:pb-20 will-change-scroll"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="max-w-[95%] sm:max-w-[780px] mx-auto w-full px-2 sm:px-4 py-2 sm:py-4">
             <div className="space-y-2 sm:space-y-3">

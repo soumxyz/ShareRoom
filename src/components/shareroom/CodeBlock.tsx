@@ -26,7 +26,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
   };
 
   return (
-    <div className="relative group card-base overflow-hidden max-w-full">
+    <div className="relative group overflow-hidden max-w-full rounded-lg">
       {/* Header */}
       <div className="flex items-center justify-between px-2 sm:px-3 py-2 bg-gray-800 border-b border-gray-700">
         <div className="flex items-center gap-2">

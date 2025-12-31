@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
-import { LoaderFour } from '@/components/ui/loader';
+import { ChatGPTPlaceholder } from '@/components/ui/chatgpt-placeholder';
 
 type Step = 'username' | 'options' | 'created';
 
@@ -113,29 +113,30 @@ const Index = () => {
       <div className="flex flex-col min-h-screen">
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 shrink-0">
+      <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 shrink-0">
         <Logo size="md" />
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-3 sm:px-4 py-4 sm:py-8">
-        <div className="w-full max-w-xs sm:max-w-md flex flex-col items-center gap-4 sm:gap-6 px-4">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8 min-h-0">
+        <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg flex flex-col items-center gap-6 sm:gap-8">
           {/* Hero section */}
           {step === 'username' && (
-            <div className="text-center space-y-4 sm:space-y-6 animate-fade-in">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mono-900">
-                <FlipWordsDemo />
+            <div className="text-center space-y-4 sm:space-y-6 animate-fade-in w-full">
+              <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-2">
+                                <span className="block sm:hidden">Share code and files instantly.</span>
+                <span className="hidden sm:block"><FlipWordsDemo /></span>
               </h1>
-              <p className="text-white/90 text-sm sm:text-base lg:text-lg mx-auto px-4 leading-relaxed text-center">
-                Create temporary chat rooms to share code, text, and files in real-time. No signup required.
+              <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-4 leading-relaxed whitespace-nowrap">
+                Create temporary chat rooms. No signup required.
               </p>
             </div>
           )}
 
           {step === 'options' && (
-            <div className="text-center animate-fade-in">
-              <p className="text-white/70 mb-2">Welcome,</p>
-              <p className="text-xl sm:text-2xl font-bold text-white/90 font-mono truncate max-w-[280px]">{username}</p>
+            <div className="text-center animate-fade-in w-full">
+              <p className="text-white/70 mb-2 text-sm">Welcome,</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate max-w-full px-4">{username}</p>
             </div>
           )}
 

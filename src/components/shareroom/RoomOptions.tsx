@@ -75,7 +75,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
       <Button
         onClick={onCreateRoom}
         disabled={loading}
-        className="w-full h-14 bg-white hover:bg-gray-50 text-black font-semibold text-lg border border-gray-300 transition-all"
+        className="w-full h-14 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white font-semibold text-lg rounded-full transition-all"
       >
         <Plus className="mr-2 w-5 h-5" />
         {loading ? 'Creating...' : 'Create Room'}
@@ -84,7 +84,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
         onClick={() => setMode('join')}
         variant="outline"
         disabled={loading}
-        className="w-full h-14 border-mono-300 bg-mono-100 hover:bg-mono-200 text-mono-800 font-semibold text-lg"
+        className="w-full h-14 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white font-semibold text-lg rounded-full transition-all"
       >
         <LogIn className="mr-2 w-5 h-5" />
         Join Room
