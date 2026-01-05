@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Paperclip, Code, X } from 'lucide-react';
+import { Send, Plus, Code, X, ArrowRight } from 'lucide-react';
 import { LoaderOne } from '@/components/ui/loader';
 
 interface ChatInputProps {
@@ -134,9 +134,9 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full"
+          className="shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20"
         >
-          <Paperclip className="w-4 h-4" />
+          <Plus className="w-4 h-4" />
         </Button>
 
         <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1 sm:gap-2 min-w-0">
@@ -172,7 +172,7 @@ export const ChatInput = ({
             disabled={disabled || (!message.trim() && !pastedImage) || sending}
             className="shrink-0 bg-green-500 hover:bg-green-600 text-white h-8 w-8 sm:h-9 sm:w-9 rounded-full disabled:opacity-40 disabled:bg-gray-400"
           >
-            {sending ? <LoaderOne className="text-white" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+            {sending ? <LoaderOne className="text-white" /> : <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </Button>
         </form>
       </div>

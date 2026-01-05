@@ -54,6 +54,40 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     getFingerprint().then(setFingerprint);
   }, []);
 
+  // Auto-cleanup old rooms (24 hours)
+  useEffect(() => {
+    const cleanupOldRooms = async () => {
+      try {
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+        // Get rooms older than 24 hours
+        const { data: oldRooms } = await supabase
+          .from('rooms')
+          .select('id')
+          .lt('created_at', twentyFourHoursAgo.toISOString());
+
+        if (oldRooms && oldRooms.length > 0) {
+          const oldRoomIds = oldRooms.map(room => room.id);
+          
+          // Delete participants, messages, and rooms
+          await supabase.from('room_participants').delete().in('room_id', oldRoomIds);
+          await supabase.from('messages').delete().in('room_id', oldRoomIds);
+          await supabase.from('banned_fingerprints').delete().in('room_id', oldRoomIds);
+          await supabase.from('rooms').delete().in('id', oldRoomIds);
+        }
+      } catch (error) {
+        console.error('Cleanup error:', error);
+      }
+    };
+
+    // Run cleanup immediately and then every hour
+    cleanupOldRooms();
+    const interval = setInterval(cleanupOldRooms, 60 * 60 * 1000); // 1 hour
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Join room
   const joinRoom = useCallback(async () => {
     if (!roomCode || !username || !fingerprint) return;
