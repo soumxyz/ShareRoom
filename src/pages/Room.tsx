@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { useRoom } from '@/hooks/useRoom';
+import { useLocalRoom } from '@/hooks/useLocalRoom';
 import { usePanicClose } from '@/hooks/usePanicClose';
 import { useTheme } from '@/hooks/useTheme';
 import { RoomHeader } from '@/components/shareroom/RoomHeader';
@@ -11,8 +11,6 @@ import { ParticipantsList } from '@/components/shareroom/ParticipantsList';
 import { Loader2, AlertCircle, EyeOff } from 'lucide-react';
 import { LoaderOne } from '@/components/ui/loader';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { getFingerprint } from '@/lib/fingerprint';
 
 const Room = () => {
   const { code } = useParams<{ code: string }>();
@@ -43,58 +41,20 @@ const Room = () => {
     muteUser,
     kickUser,
     leaveRoom,
-  } = useRoom(code || null, username);
+  } = useLocalRoom(code || null, username);
 
   // Panic close handler
   usePanicClose(async () => {
     await leaveRoom();
   });
 
-  // Room access guard - check username and ban status
+  // Room access guard - simplified for localStorage
   useEffect(() => {
-    const checkAccess = async () => {
-      // If no username, redirect to home with code
-      if (!username) {
-        navigate(`/?code=${code}`, { replace: true });
-        return;
-      }
-
-      // Get fingerprint
-      const fingerprint = await getFingerprint();
-      if (!fingerprint) {
-        navigate('/', { replace: true });
-        return;
-      }
-
-      // Check if room exists
-      const { data: roomData } = await supabase
-        .from('rooms')
-        .select('id')
-        .eq('code', code?.toUpperCase() || '')
-        .maybeSingle();
-
-      if (!roomData) {
-        navigate('/', { replace: true });
-        return;
-      }
-
-      // Check if user is banned from this room
-      const { data: banData } = await supabase
-        .from('banned_fingerprints')
-        .select('id')
-        .eq('room_id', roomData.id)
-        .eq('fingerprint', fingerprint)
-        .maybeSingle();
-
-      if (banData) {
-        navigate('/', { replace: true });
-        return;
-      }
-
-      setAccessChecked(true);
-    };
-
-    checkAccess();
+    if (!username) {
+      navigate(`/?code=${code}`, { replace: true });
+      return;
+    }
+    setAccessChecked(true);
   }, [code, username, navigate]);
 
   // Track scroll position with throttling for better performance
@@ -212,10 +172,10 @@ const Room = () => {
       <RoomHeader
         roomCode={room.code}
         roomName={room.name}
-        isLocked={room.is_locked}
-        isHost={isHost}
-        participantCount={participants.length}
-        participants={participants}
+        isLocked={false}
+        isHost={false}
+        participantCount={1}
+        participants={[]}
         theme={theme}
         onBack={handleBack}
         onToggleLock={toggleLock}
@@ -239,32 +199,35 @@ const Room = () => {
                 </div>
               )}
 
-              {messages.map((message) => {
-                const replyMessage = message.reply_to_id
-                  ? messages.find((m) => m.id === message.reply_to_id)
-                  : null;
-
-                return (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isOwn={message.participant_id === participant?.id}
-                    isHost={isHost}
-                    replyMessage={replyMessage}
-                    onReply={() =>
-                      setReplyTo({
-                        id: message.id,
-                        username: message.username,
-                        content: message.content || '',
-                      })
-                    }
-                    onDelete={isHost || message.participant_id === participant?.id ? () => deleteMessage(message.id) : undefined}
-                    onMuteUser={message.participant_id ? () => muteUser(message.participant_id!) : undefined}
-                    onKickUser={message.participant_id ? () => kickUser(message.participant_id!, true) : undefined}
-                    onScrollToMessage={scrollToMessage}
-                  />
-                );
-              })}
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={{
+                    ...message,
+                    participant_id: message.username === username ? 'local-user' : 'other',
+                    message_type: 'text',
+                    is_system: false,
+                    reply_to_id: null,
+                    file_url: null,
+                    file_name: null,
+                    file_type: null
+                  }}
+                  isOwn={message.username === username}
+                  isHost={false}
+                  replyMessage={null}
+                  onReply={() =>
+                    setReplyTo({
+                      id: message.id,
+                      username: message.username,
+                      content: message.content || '',
+                    })
+                  }
+                  onDelete={undefined}
+                  onMuteUser={undefined}
+                  onKickUser={undefined}
+                  onScrollToMessage={scrollToMessage}
+                />
+              ))}
               <div ref={messagesEndRef} className="h-4" />
             </div>
           </div>
@@ -274,10 +237,10 @@ const Room = () => {
         <div className="fixed bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[95%] sm:max-w-[780px] px-2 sm:px-4">
           <ChatInput
             onSend={handleSend}
-            onFileUpload={sendFile}
+            onFileUpload={async () => {}}
             replyTo={replyTo}
             onCancelReply={() => setReplyTo(null)}
-            disabled={participant?.is_muted}
+            disabled={false}
           />
         </div>
       </div>

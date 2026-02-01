@@ -5,12 +5,12 @@ import { UsernameForm } from '@/components/shareroom/UsernameForm';
 import { RoomOptions } from '@/components/shareroom/RoomOptions';
 import { RoomCreated } from '@/components/shareroom/RoomCreated';
 import { SplineBackground } from '@/components/shareroom/SplineBackground';
-import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
+import { localDB } from '@/lib/localStorage';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 import { Typewriter } from '@/components/ui/typewriter';
-import { ChatGPTPlaceholder } from '@/components/ui/chatgpt-placeholder';
+
 
 type Step = 'username' | 'options' | 'created';
 
@@ -81,18 +81,17 @@ const Index = () => {
       const fingerprint = await getFingerprint();
       const code = generateRoomCode();
 
-      const { error } = await supabase.from('rooms').insert({
+      const room = localDB.createRoom({
         code,
         name: `${username}'s Room`,
         host_fingerprint: fingerprint,
       });
 
-      if (error) throw error;
-
       setRoomCode(code);
       setStep('created');
     } catch (err) {
       console.error('Failed to create room:', err);
+      alert('Failed to create room. Please try again.');
     } finally {
       setLoading(false);
     }
