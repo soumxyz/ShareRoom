@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { useLocalRoom } from '@/hooks/useLocalRoom';
+import { useRoom } from '@/hooks/useRoom';
 import { usePanicClose } from '@/hooks/usePanicClose';
 import { useTheme } from '@/hooks/useTheme';
 import { RoomHeader } from '@/components/shareroom/RoomHeader';
@@ -41,7 +41,7 @@ const Room = () => {
     muteUser,
     kickUser,
     leaveRoom,
-  } = useLocalRoom(code || null, username);
+  } = useRoom(code || null, username);
 
   // Panic close handler
   usePanicClose(async () => {
@@ -172,10 +172,10 @@ const Room = () => {
       <RoomHeader
         roomCode={room.code}
         roomName={room.name}
-        isLocked={false}
-        isHost={false}
-        participantCount={1}
-        participants={[]}
+        isLocked={room.is_locked}
+        isHost={isHost}
+        participantCount={participants.length}
+        participants={participants}
         theme={theme}
         onBack={handleBack}
         onToggleLock={toggleLock}
@@ -204,27 +204,24 @@ const Room = () => {
                   key={message.id}
                   message={{
                     ...message,
-                    participant_id: message.username === username ? 'local-user' : 'other',
-                    message_type: 'text',
-                    is_system: false,
-                    reply_to_id: null,
-                    file_url: null,
-                    file_name: null,
-                    file_type: null
                   }}
-                  isOwn={message.username === username}
-                  isHost={false}
-                  replyMessage={null}
+                  isOwn={message.participant_id === participant?.id}
+                  isHost={isHost}
+                  replyMessage={
+                    message.reply_to_id
+                      ? messages.find((m) => m.id === message.reply_to_id) || null
+                      : null
+                  }
                   onReply={() =>
                     setReplyTo({
                       id: message.id,
                       username: message.username,
-                      content: message.content || '',
+                      content: message.content || message.file_name || '',
                     })
                   }
-                  onDelete={undefined}
-                  onMuteUser={undefined}
-                  onKickUser={undefined}
+                  onDelete={deleteMessage}
+                  onMuteUser={muteUser}
+                  onKickUser={kickUser}
                   onScrollToMessage={scrollToMessage}
                 />
               ))}
