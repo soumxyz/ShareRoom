@@ -29,11 +29,14 @@ export const useLocalRoom = (roomCode: string | null, username: string | null) =
       return;
     }
 
-    const foundRoom = localDB.getRoom(roomCode.toUpperCase());
+    let foundRoom = localDB.getRoom(roomCode.toUpperCase());
     if (!foundRoom) {
-      setError('Room not found');
-      setLoading(false);
-      return;
+      // Create room if it doesn't exist
+      foundRoom = localDB.createRoom({
+        code: roomCode.toUpperCase(),
+        name: `Room ${roomCode.toUpperCase()}`,
+        host_fingerprint: 'temp-host',
+      });
     }
 
     setRoom(foundRoom);
