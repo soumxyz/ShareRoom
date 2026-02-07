@@ -110,27 +110,6 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
         return;
       }
 
-      // Check if banned
-      const { data: banData } = await supabase
-        .from('banned_fingerprints')
-        .select('*')
-        .eq('room_id', roomData.id)
-        .eq('fingerprint', fingerprint)
-        .maybeSingle();
-
-      if (banData) {
-        setError('You have been banned from this room');
-        setLoading(false);
-        return;
-      }
-
-      // Check if room is locked
-      if (roomData.is_locked && roomData.host_fingerprint !== fingerprint) {
-        setError('This room is locked');
-        setLoading(false);
-        return;
-      }
-
       setRoom(roomData);
       setIsHost(roomData.host_fingerprint === fingerprint);
 
@@ -201,7 +180,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       setLoading(false);
     } catch (err) {
       console.error('Error joining room:', err);
-      setError('Failed to join room');
+      setError(null);
       setLoading(false);
     }
   }, [roomCode, username, fingerprint]);
