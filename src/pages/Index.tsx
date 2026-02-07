@@ -6,7 +6,7 @@ import { RoomOptions } from '@/components/shareroom/RoomOptions';
 import { RoomCreated } from '@/components/shareroom/RoomCreated';
 import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
-import { localDB } from '@/lib/localStorage';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -81,11 +81,13 @@ const Index = () => {
       const fingerprint = await getFingerprint();
       const code = generateRoomCode();
 
-      localDB.createRoom({
+      const { error } = await supabase.from('rooms').insert({
         code,
         name: `${username}'s Room`,
         host_fingerprint: fingerprint,
       });
+
+      if (error) throw error;
 
       setRoomCode(code);
       setStep('created');
