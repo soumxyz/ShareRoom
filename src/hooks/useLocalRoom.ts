@@ -51,6 +51,21 @@ export const useLocalRoom = (roomCode: string | null, username: string | null) =
     }
   }, [roomCode, username]);
 
+  // Listen for storage changes to sync messages across tabs
+  useEffect(() => {
+    if (!room) return;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'shareroom_messages') {
+        const roomMessages = localDB.getMessages(room.id);
+        setMessages(roomMessages);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [room]);
+
   const sendMessage = async (content: string) => {
     if (!room || !username) return;
 
@@ -61,6 +76,12 @@ export const useLocalRoom = (roomCode: string | null, username: string | null) =
     });
 
     setMessages(prev => [...prev, message]);
+    
+    // Trigger storage event for other tabs
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'shareroom_messages',
+      newValue: localStorage.getItem('shareroom_messages')
+    }));
   };
 
   const leaveRoom = async () => {
