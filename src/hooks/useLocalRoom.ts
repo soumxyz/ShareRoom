@@ -29,20 +29,26 @@ export const useLocalRoom = (roomCode: string | null, username: string | null) =
       return;
     }
 
-    let foundRoom = localDB.getRoom(roomCode.toUpperCase());
-    if (!foundRoom) {
-      // Create room if it doesn't exist
-      foundRoom = localDB.createRoom({
-        code: roomCode.toUpperCase(),
-        name: `Room ${roomCode.toUpperCase()}`,
-        host_fingerprint: 'temp-host',
-      });
-    }
+    try {
+      let foundRoom = localDB.getRoom(roomCode.toUpperCase());
+      if (!foundRoom) {
+        foundRoom = localDB.createRoom({
+          code: roomCode.toUpperCase(),
+          name: `Room ${roomCode.toUpperCase()}`,
+          host_fingerprint: 'temp-host',
+        });
+      }
 
-    setRoom(foundRoom);
-    const roomMessages = localDB.getMessages(foundRoom.id);
-    setMessages(roomMessages);
-    setLoading(false);
+      setRoom(foundRoom);
+      const roomMessages = localDB.getMessages(foundRoom.id);
+      setMessages(roomMessages);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading room:', err);
+      setError(null);
+    } finally {
+      setLoading(false);
+    }
   }, [roomCode, username]);
 
   const sendMessage = async (content: string) => {

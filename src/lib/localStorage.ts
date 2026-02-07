@@ -16,13 +16,18 @@ interface Message {
 
 export const localDB = {
   createRoom: (room: Omit<Room, 'id' | 'created_at'>): Room => {
+    const rooms = JSON.parse(localStorage.getItem('shareroom_rooms') || '[]');
+    
+    // Check if room code already exists
+    const existing = rooms.find((r: Room) => r.code === room.code);
+    if (existing) return existing;
+    
     const newRoom: Room = {
       ...room,
       id: Math.random().toString(36).substr(2, 9),
       created_at: new Date().toISOString(),
     };
     
-    const rooms = JSON.parse(localStorage.getItem('shareroom_rooms') || '[]');
     rooms.push(newRoom);
     localStorage.setItem('shareroom_rooms', JSON.stringify(rooms));
     
