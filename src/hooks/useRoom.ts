@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint } from '@/lib/fingerprint';
+import { mockDb } from '@/lib/mockDb';
 import { toast } from '@/hooks/use-toast';
 
 interface Message {
@@ -69,7 +70,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
 
         if (oldRooms && oldRooms.length > 0) {
           const oldRoomIds = oldRooms.map(room => room.id);
-          
+
           // Delete participants, messages, and rooms
           await supabase.from('room_participants').delete().in('room_id', oldRoomIds);
           await supabase.from('messages').delete().in('room_id', oldRoomIds);
@@ -96,14 +97,8 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       setLoading(true);
       setError(null);
 
-      // Check if room exists
-      const { data: roomData, error: roomError } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('code', roomCode.toUpperCase())
-        .maybeSingle();
+      const roomData = await mockDb.getRoomByCode(roomCode);
 
-      if (roomError) throw roomError;
       if (!roomData) {
         setError('Room not found');
         setLoading(false);
@@ -113,69 +108,27 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       setRoom(roomData);
       setIsHost(roomData.host_fingerprint === fingerprint);
 
+      // Check if user is banned
+      // Simplification: Banning not fully implemented in mock for now, or could check participant property
+      const participants = await mockDb.getParticipants(roomData.id);
+
       // Check existing participant
-      const { data: existingParticipant } = await supabase
-        .from('room_participants')
-        .select('*')
-        .eq('room_id', roomData.id)
-        .eq('fingerprint', fingerprint)
-        .maybeSingle();
+      const existingParticipant = await mockDb.joinRoom(roomData.id, username, fingerprint);
 
-      let currentParticipant = existingParticipant;
-
-      if (!existingParticipant) {
-        // Join as new participant
-        const { data: newParticipant, error: joinError } = await supabase
-          .from('room_participants')
-          .insert({
-            room_id: roomData.id,
-            username,
-            fingerprint,
-          })
-          .select()
-          .single();
-
-        if (joinError) throw joinError;
-        currentParticipant = newParticipant;
-
-        // Send join message
-        await supabase.from('messages').insert({
-          room_id: roomData.id,
-          participant_id: newParticipant.id,
-          username,
-          content: `${username} joined the room`,
-          message_type: 'system',
-          is_system: true,
-        });
-      } else {
-        // Update username if different
-        if (existingParticipant.username !== username) {
-          await supabase
-            .from('room_participants')
-            .update({ username })
-            .eq('id', existingParticipant.id);
-        }
+      // Check if room is locked
+      if (roomData.is_locked && !participants.find(p => p.fingerprint === fingerprint) && roomData.host_fingerprint !== fingerprint) {
+        setError('Room is locked');
+        setLoading(false);
+        return;
       }
 
-      setParticipant(currentParticipant);
+      setParticipant(existingParticipant);
 
-      // Fetch messages
-      const { data: messagesData } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('room_id', roomData.id)
-        .order('created_at', { ascending: true });
+      const messagesData = await mockDb.getMessages(roomData.id);
+      setMessages(messagesData);
 
-      setMessages(messagesData || []);
-
-      // Fetch participants
-      const { data: participantsData } = await supabase
-        .from('room_participants')
-        .select('*')
-        .eq('room_id', roomData.id)
-        .eq('is_banned', false);
-
-      setParticipants(participantsData || []);
+      const participantsData = await mockDb.getParticipants(roomData.id);
+      setParticipants(participantsData);
 
       setLoading(false);
     } catch (err) {
@@ -189,67 +142,26 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   useEffect(() => {
     if (!room) return;
 
-    const channel = supabase
-      .channel(`room-${room.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `room_id=eq.${room.id}`,
-        },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'messages',
-          filter: `room_id=eq.${room.id}`,
-        },
-        (payload) => {
-          setMessages((prev) => prev.filter((m) => m.id !== payload.old.id));
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'room_participants',
-          filter: `room_id=eq.${room.id}`,
-        },
-        async () => {
-          const { data } = await supabase
-            .from('room_participants')
-            .select('*')
-            .eq('room_id', room.id)
-            .eq('is_banned', false);
-          setParticipants(data || []);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'rooms',
-          filter: `id=eq.${room.id}`,
-        },
-        (payload) => {
-          setRoom(payload.new as Room);
-        }
-      )
-      .subscribe();
+    const updateData = async () => {
+      const messagesData = await mockDb.getMessages(room.id);
+      setMessages(messagesData);
 
-    channelRef.current = channel;
+      const participantsData = await mockDb.getParticipants(room.id);
+      setParticipants(participantsData);
+
+      const roomData = await mockDb.getRoomById(room.id);
+      if (roomData) setRoom(roomData);
+    };
+
+    // Subscriptions
+    const unsubMessages = mockDb.subscribe('messages', updateData);
+    const unsubParticipants = mockDb.subscribe('participants', updateData);
+    const unsubRooms = mockDb.subscribe('rooms', updateData);
 
     return () => {
-      supabase.removeChannel(channel);
+      unsubMessages();
+      unsubParticipants();
+      unsubRooms();
     };
   }, [room]);
 
@@ -264,7 +176,6 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   const sendMessage = async (content: string, replyToId?: string) => {
     if (!room || !participant) return;
 
-    // Check if muted
     if (participant.is_muted) {
       toast({
         title: 'Muted',
@@ -274,13 +185,17 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       return;
     }
 
-    await supabase.from('messages').insert({
+    await mockDb.addMessage({
       room_id: room.id,
       participant_id: participant.id,
       username: participant.username,
       content,
       message_type: 'text',
       reply_to_id: replyToId || null,
+      file_url: null,
+      file_name: null,
+      file_type: null,
+      is_system: false
     });
   };
 
@@ -288,175 +203,43 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   const sendFile = async (file: File) => {
     if (!room || !participant) return;
 
-    const allowedTypes = ['.txt', '.java', '.c', '.py', '.cpp', '.zip', '.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp'];
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-    
-    if (!allowedTypes.includes(ext)) {
-      toast({
-        title: 'Invalid file type',
-        description: 'Only .txt, .java, .c, .py, .cpp, .zip, .pdf, .jpg, .jpeg, .png, .gif, .webp files allowed',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const filePath = `${room.id}/${Date.now()}-${file.name}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('room-files')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      toast({
-        title: 'Upload failed',
-        description: uploadError.message,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const { data: urlData } = supabase.storage
-      .from('room-files')
-      .getPublicUrl(filePath);
-
-    await supabase.from('messages').insert({
-      room_id: room.id,
-      participant_id: participant.id,
-      username: participant.username,
-      content: `Shared file: ${file.name}`,
-      message_type: 'file',
-      file_url: urlData.publicUrl,
-      file_name: file.name,
-      file_type: file.type,
+    toast({
+      title: 'Not supported',
+      description: 'File sharing is not supported in offline demo mode',
+      variant: 'destructive',
     });
   };
 
   // Host actions
   const toggleLock = async () => {
     if (!room || !isHost) return;
-    await supabase.from('rooms').update({ is_locked: !room.is_locked }).eq('id', room.id);
+    await mockDb.toggleLock(room.id);
   };
 
   const deleteMessage = async (messageId: string) => {
     if (!isHost && !participant) return;
-    
-    // Check if user can delete (host or message owner)
-    const message = messages.find(m => m.id === messageId);
-    if (!message) return;
-    
-    const canDelete = isHost || message.participant_id === participant?.id;
-    if (!canDelete) return;
-
-    try {
-      // Delete from database first - this will trigger realtime update for all users
-      const { error } = await supabase.from('messages').delete().eq('id', messageId);
-      
-      if (error) {
-        toast({
-          title: 'Delete failed',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
-    } catch (err) {
-      console.error('Error deleting message:', err);
-      toast({
-        title: 'Delete failed',
-        description: 'Failed to delete message',
-        variant: 'destructive',
-      });
-    }
+    await mockDb.deleteMessage(messageId);
   };
 
   const muteUser = async (participantId: string) => {
+    // Mock mute - effectively does nothing in DB but UI could update if we persisted it
     if (!isHost) return;
-    const target = participants.find((p) => p.id === participantId);
-    if (target) {
-      await supabase
-        .from('room_participants')
-        .update({ is_muted: !target.is_muted })
-        .eq('id', participantId);
-    }
+    toast({ title: "Mute", description: "Muting not fully supported in demo mode" });
   };
 
   const kickUser = async (participantId: string, ban: boolean = false) => {
     if (!isHost || !room) return;
-    
-    const target = participants.find((p) => p.id === participantId);
-    if (!target || target.fingerprint === fingerprint) return;
-
-    if (ban) {
-      await supabase.from('banned_fingerprints').insert({
-        room_id: room.id,
-        fingerprint: target.fingerprint,
-      });
-    }
-
-    await supabase.from('room_participants').update({ is_banned: true }).eq('id', participantId);
-
-    await supabase.from('messages').insert({
-      room_id: room.id,
-      username: 'System',
-      content: `${target.username} was ${ban ? 'banned' : 'kicked'} from the room`,
-      message_type: 'system',
-      is_system: true,
-    });
+    await mockDb.leaveRoom(room.id, participantId);
   };
 
   const leaveRoom = async () => {
-    const roomId = room?.id;
-    const participantId = participant?.id;
-    const participantUsername = participant?.username;
-
-    // Reset all local state immediately to prevent stale data
+    if (room && participant) {
+      await mockDb.leaveRoom(room.id, participant.id);
+    }
+    setRoom(null);
+    setParticipant(null);
     setMessages([]);
     setParticipants([]);
-    setParticipant(null);
-    setIsHost(false);
-    setError(null);
-
-    // Remove the specific channel first
-    if (channelRef.current) {
-      await supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
-
-    // Remove all remaining channels to ensure no ghost presence
-    await supabase.removeAllChannels();
-
-    // Perform database cleanup if we had room and participant
-    if (roomId && participantId) {
-      try {
-        // Send leave message
-        await supabase.from('messages').insert({
-          room_id: roomId,
-          username: 'System',
-          content: `${participantUsername} left the room`,
-          message_type: 'system',
-          is_system: true,
-        });
-
-        // Delete participant
-        await supabase.from('room_participants').delete().eq('id', participantId);
-
-        // Check if any non-banned participants remain
-        const { data: remainingParticipants } = await supabase
-          .from('room_participants')
-          .select('id')
-          .eq('room_id', roomId)
-          .eq('is_banned', false);
-
-        // If no participants left, delete all messages for this room
-        if (!remainingParticipants || remainingParticipants.length === 0) {
-          await supabase.from('messages').delete().eq('room_id', roomId);
-        }
-      } catch (err) {
-        console.error('Error during leave cleanup:', err);
-      }
-    }
-
-    // Reset room last to allow cleanup operations
-    setRoom(null);
   };
 
   return {

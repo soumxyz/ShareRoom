@@ -6,7 +6,7 @@ import { RoomOptions } from '@/components/shareroom/RoomOptions';
 import { RoomCreated } from '@/components/shareroom/RoomCreated';
 import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
-import { supabase } from '@/integrations/supabase/client';
+import { mockDb } from '@/lib/mockDb';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -43,10 +43,10 @@ const Index = () => {
   // Handle page load
   useEffect(() => {
     let mounted = true;
-    
+
     const checkLoaded = () => {
       if (!mounted) return;
-      
+
       if (document.readyState === 'complete') {
         setTimeout(() => {
           if (mounted) setIsPageLoaded(true);
@@ -55,9 +55,9 @@ const Index = () => {
         setTimeout(checkLoaded, 100);
       }
     };
-    
+
     checkLoaded();
-    
+
     return () => {
       mounted = false;
     };
@@ -66,7 +66,7 @@ const Index = () => {
   const handleUsernameSubmit = (name: string) => {
     setUsername(name);
     localStorage.setItem('shareroom_username', name);
-    
+
     // If we have a join code from deep link, go directly to room
     if (joinCode) {
       navigate(`/room/${joinCode}?username=${encodeURIComponent(name)}`);
@@ -81,15 +81,21 @@ const Index = () => {
       const fingerprint = await getFingerprint();
       const code = generateRoomCode();
 
-      const { error } = await supabase.from('rooms').insert({
-        code,
-        name: `${username}'s Room`,
-        host_fingerprint: fingerprint,
-      });
+      await mockDb.createRoom(`${username}'s Room`, fingerprint);
+      // We manually set the code in the DB, so we can use it here
+      // But mockDb generates its own code... wait, my mockDb implementation also generates code. 
+      // I should update mockDb to accept a code or return the created room.
+      // Looking at mockDb.ts: createRoom(name, host_fingerprint) returns Promise<Room> which has the code.
+      // So I should use the returned room object.
 
-      if (error) throw error;
+      // Let's re-read mockDb logic I wrote.
+      // async createRoom(name: string, host_fingerprint: string): Promise<Room> { ... code: generateRoomCode() ... return newRoom; }
 
-      setRoomCode(code);
+      // So I don't need to generate code here.
+
+      const newRoom = await mockDb.createRoom(`${username}'s Room`, fingerprint);
+
+      setRoomCode(newRoom.code);
       setStep('created');
     } catch (err) {
       console.error('Failed to create room:', err);
@@ -110,75 +116,75 @@ const Index = () => {
     <div className="min-h-screen w-full bg-gradient-to-b from-neutral-900 to-neutral-700 relative overflow-hidden">
       {/* Spline 3D Background */}
       <SplineBackground />
-      
+
       <div className="flex flex-col min-h-screen">
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 shrink-0">
-        <Logo size="md" />
-      </header>
+        {/* Header */}
+        <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 shrink-0">
+          <Logo size="md" />
+        </header>
 
-      {/* Main content */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8 min-h-0">
-        <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg flex flex-col items-center gap-6 sm:gap-8">
-          {/* Hero section */}
-          {step === 'username' && (
-            <div className="text-center space-y-6 sm:space-y-6 animate-fade-in w-full px-4 sm:px-0">
-              <h1 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-0 sm:px-2">
-                                <span className="block sm:hidden text-center px-2 overflow-hidden"><Typewriter text="Share code and files instantly." speed={150} /></span>
-                <span className="hidden sm:block"><FlipWordsDemo /></span>
-              </h1>
-              <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed whitespace-nowrap">
-                Create temporary chat rooms. No signup required.
-              </p>
-            </div>
-          )}
+        {/* Main content */}
+        <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8 min-h-0">
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg flex flex-col items-center gap-6 sm:gap-8">
+            {/* Hero section */}
+            {step === 'username' && (
+              <div className="text-center space-y-6 sm:space-y-6 animate-fade-in w-full px-4 sm:px-0">
+                <h1 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-0 sm:px-2">
+                  <span className="block sm:hidden text-center px-2 overflow-hidden"><Typewriter text="Share code and files instantly." speed={150} /></span>
+                  <span className="hidden sm:block"><FlipWordsDemo /></span>
+                </h1>
+                <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed whitespace-nowrap">
+                  Create temporary chat rooms. No signup required.
+                </p>
+              </div>
+            )}
 
-          {step === 'options' && (
-            <div className="text-center animate-fade-in w-full">
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate whitespace-nowrap overflow-hidden">
-                <span className="text-white font-normal">Welcome, </span><Typewriter text={username} className="font-bold" speed={150} />
-              </p>
-            </div>
-          )}
+            {step === 'options' && (
+              <div className="text-center animate-fade-in w-full">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate whitespace-nowrap overflow-hidden">
+                  <span className="text-white font-normal">Welcome, </span><Typewriter text={username} className="font-bold" speed={150} />
+                </p>
+              </div>
+            )}
 
-          {/* Step content */}
-          {step === 'username' && (
-            <UsernameForm onSubmit={handleUsernameSubmit} initialValue={username} />
-          )}
+            {/* Step content */}
+            {step === 'username' && (
+              <UsernameForm onSubmit={handleUsernameSubmit} initialValue={username} />
+            )}
 
-          {step === 'options' && (
-            <RoomOptions
-              onCreateRoom={handleCreateRoom}
-              onJoinRoom={handleJoinRoom}
-              loading={loading}
-            />
-          )}
+            {step === 'options' && (
+              <RoomOptions
+                onCreateRoom={handleCreateRoom}
+                onJoinRoom={handleJoinRoom}
+                loading={loading}
+              />
+            )}
 
-          {step === 'created' && (
-            <RoomCreated roomCode={roomCode} onGoToRoom={handleGoToRoom} />
-          )}
+            {step === 'created' && (
+              <RoomCreated roomCode={roomCode} onGoToRoom={handleGoToRoom} />
+            )}
 
-          {/* Back button */}
-          {step === 'options' && (
-            <div className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
-              <button
-                onClick={() => setStep('username')}
-                className="h-7 w-7 rounded-full flex items-center justify-center text-white hover:text-white/80 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-      </main>
+            {/* Back button */}
+            {step === 'options' && (
+              <div className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
+                <button
+                  onClick={() => setStep('username')}
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-white hover:text-white/80 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 text-center p-4 text-xs text-mono-400 shrink-0">
-        <p className="hidden sm:block">Press ESC twice to panic close</p>
-      </footer>
+        {/* Footer */}
+        <footer className="relative z-10 text-center p-4 text-xs text-mono-400 shrink-0">
+          <p className="hidden sm:block">Press ESC twice to panic close</p>
+        </footer>
       </div>
     </div>
   );

@@ -3,22 +3,29 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs';
 let fingerprintPromise: Promise<string> | null = null;
 
 export const getFingerprint = async (): Promise<string> => {
+  // Check localStorage first
+  const stored = localStorage.getItem('shareroom_fingerprint');
+  if (stored) return stored;
+
   if (!fingerprintPromise) {
     fingerprintPromise = (async () => {
+      let visitorId: string;
       try {
         console.log('Loading FingerprintJS...');
         const fp = await FingerprintJS.load();
         console.log('FingerprintJS loaded, getting result...');
         const result = await fp.get();
         console.log('Fingerprint generated:', result.visitorId);
-        return result.visitorId;
+        visitorId = result.visitorId;
       } catch (error) {
         console.error('Error generating fingerprint:', error);
         // Fallback to a simple random ID if fingerprinting fails
-        const fallbackId = 'fallback_' + Math.random().toString(36).substr(2, 9);
-        console.log('Using fallback fingerprint:', fallbackId);
-        return fallbackId;
+        visitorId = 'fallback_' + Math.random().toString(36).substr(2, 9);
+        console.log('Using fallback fingerprint:', visitorId);
       }
+
+      localStorage.setItem('shareroom_fingerprint', visitorId);
+      return visitorId;
     })();
   }
   return fingerprintPromise;
