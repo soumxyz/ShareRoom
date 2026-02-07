@@ -6,7 +6,7 @@ import { RoomOptions } from '@/components/shareroom/RoomOptions';
 import { RoomCreated } from '@/components/shareroom/RoomCreated';
 import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
-import { mockDb } from '@/lib/mockDb';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -81,21 +81,15 @@ const Index = () => {
       const fingerprint = await getFingerprint();
       const code = generateRoomCode();
 
-      await mockDb.createRoom(`${username}'s Room`, fingerprint);
-      // We manually set the code in the DB, so we can use it here
-      // But mockDb generates its own code... wait, my mockDb implementation also generates code. 
-      // I should update mockDb to accept a code or return the created room.
-      // Looking at mockDb.ts: createRoom(name, host_fingerprint) returns Promise<Room> which has the code.
-      // So I should use the returned room object.
+      const { error } = await supabase.from('rooms').insert({
+        code,
+        name: `${username}'s Room`,
+        host_fingerprint: fingerprint,
+      });
 
-      // Let's re-read mockDb logic I wrote.
-      // async createRoom(name: string, host_fingerprint: string): Promise<Room> { ... code: generateRoomCode() ... return newRoom; }
+      if (error) throw error;
 
-      // So I don't need to generate code here.
-
-      const newRoom = await mockDb.createRoom(`${username}'s Room`, fingerprint);
-
-      setRoomCode(newRoom.code);
+      setRoomCode(code);
       setStep('created');
     } catch (err) {
       console.error('Failed to create room:', err);
