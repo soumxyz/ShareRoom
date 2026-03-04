@@ -128,7 +128,7 @@ const Index = () => {
                   <span className="block sm:hidden text-center px-2 overflow-hidden"><Typewriter text="Share code and files instantly." speed={150} /></span>
                   <span className="hidden sm:block"><FlipWordsDemo /></span>
                 </h1>
-                <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed whitespace-nowrap">
+                <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed">
                   Create temporary chat rooms. No signup required.
                 </p>
               </div>

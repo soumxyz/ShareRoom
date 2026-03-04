@@ -67,7 +67,7 @@ export const MessageBubble = ({
   // Parse content for code blocks
   const parseContent = (content: string | null) => {
     if (!content) return [];
-    
+
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     const parts: Array<{ type: 'text' | 'code'; content: string; language?: string }> = [];
     let lastIndex = 0;
@@ -130,7 +130,7 @@ export const MessageBubble = ({
         </div>
       )}
 
-      <div className={`flex items-end gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%] ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
+      <div className={`flex items-end gap-1 sm:gap-2 max-w-[90%] sm:max-w-[75%] ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
         {/* Message bubble */}
         <div
           className={`relative text-sm text-white`}
@@ -143,7 +143,7 @@ export const MessageBubble = ({
                   <img
                     src={message.file_url}
                     alt={message.file_name || 'Shared image'}
-                    className="max-w-full max-h-[300px] rounded-lg object-contain"
+                    className="max-w-full max-h-[200px] sm:max-h-[300px] rounded-lg object-contain"
                     loading="lazy"
                   />
                   <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export const MessageBubble = ({
                       {message.file_name}
                     </span>
                   </div>
-                  
+
                   <div className="flex gap-3">
                     <a
                       href={message.file_url}
@@ -224,8 +224,8 @@ export const MessageBubble = ({
           )}
         </div>
 
-        {/* Actions - visible on hover */}
-        <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Actions - always visible on touch, hover on desktop */}
+        <div className={`opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
           <Button
             size="sm"
             variant="ghost"

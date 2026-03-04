@@ -151,8 +151,8 @@
     overscroll-behavior: none;
   }
 
-  /* Hardware acceleration for smooth animations */
-  * {
+  /* Hardware acceleration for smooth animations — scoped to avoid breaking sticky/fixed on mobile */
+  .hw-accel {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
@@ -164,9 +164,18 @@
   }
 
   /* Mobile viewport fix */
-  html, body {
+  html,
+  body {
     height: 100%;
     overflow-x: hidden;
+  }
+
+  /* Safe-area inset utilities for iPhone notch / home bar */
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
   }
 
   ::selection {
@@ -238,12 +247,12 @@
 
   .glow-primary {
     box-shadow: 0 0 20px hsl(var(--mono-500) / 0.2),
-                0 0 40px hsl(var(--mono-500) / 0.1);
+      0 0 40px hsl(var(--mono-500) / 0.1);
   }
 
   .glow-accent {
     box-shadow: 0 0 20px hsl(var(--mono-400) / 0.2),
-                0 0 40px hsl(var(--mono-400) / 0.1);
+      0 0 40px hsl(var(--mono-400) / 0.1);
   }
 
   .glass {
@@ -255,9 +264,12 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
       box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
     }
+
     50% {
       box-shadow: 0 0 25px hsl(var(--primary) / 0.5);
     }
@@ -266,6 +278,13 @@
   .code-scrollbar::-webkit-scrollbar {
     width: 8px;
     height: 8px;
+  }
+
+  @media (max-width: 640px) {
+    .code-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
   }
 
   .code-scrollbar::-webkit-scrollbar-track {
@@ -299,12 +318,17 @@
   }
 
   /* Prevent zoom on input focus (iOS) */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px;
   }
 
   @media (max-width: 640px) {
-    input, textarea, select {
+
+    input,
+    textarea,
+    select {
       font-size: 16px !important;
     }
   }
@@ -396,6 +420,6 @@ pre[class*="language-"] {
   margin-right: 0.75rem;
 }
 
-.line-numbers-rows > span::before {
+.line-numbers-rows>span::before {
   color: hsl(var(--muted-foreground) / 0.5);
 }

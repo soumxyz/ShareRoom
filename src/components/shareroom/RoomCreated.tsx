@@ -23,11 +23,11 @@ export const RoomCreated = ({ roomCode, onGoToRoom }: RoomCreatedProps) => {
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 space-y-4">
           <div className="space-y-1">
             <p className="text-xs text-white/60 uppercase tracking-wider">Room Code</p>
-            <p className="text-4xl font-mono font-bold tracking-[0.3em] text-white">
+            <p className="text-3xl sm:text-4xl font-mono font-bold tracking-[0.3em] text-white">
               {roomCode}
             </p>
           </div>
-          
+
           <Button
             onClick={copyCode}
             variant="outline"

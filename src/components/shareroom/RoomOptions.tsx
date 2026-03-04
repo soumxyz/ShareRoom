@@ -72,7 +72,7 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
 
   return (
     <div className="w-full max-w-sm animate-fade-in">
-      <div className="flex gap-6">
+      <div className="flex flex-col xs:flex-row gap-3 sm:gap-6">
         <Button
           onClick={onCreateRoom}
           disabled={loading}

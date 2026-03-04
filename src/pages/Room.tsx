@@ -155,18 +155,20 @@ const Room = () => {
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Dark Dot Matrix */}
+      {/* Background Image */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundColor: '#0a0a0a',
-          backgroundImage: `
-            radial-gradient(circle at 25% 25%, #222222 0.5px, transparent 1px),
-            radial-gradient(circle at 75% 75%, #111111 0.5px, transparent 1px)
-          `,
-          backgroundSize: '10px 10px',
-          imageRendering: 'pixelated',
+          backgroundImage: `url('/chat-bg.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
         }}
+      />
+      {/* Dark overlay for readability */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
       />
       {/* Your Content Here */}
       <div className="h-screen flex flex-col relative z-10">
@@ -190,8 +192,11 @@ const Room = () => {
           <div
             ref={messagesContainerRef}
             onScroll={throttledHandleScroll()}
-            className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-16 sm:pb-20 will-change-scroll"
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 will-change-scroll"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))',
+            }}
           >
             <div className="max-w-[95%] sm:max-w-[780px] mx-auto w-full px-2 sm:px-4 py-2 sm:py-4">
               <div className="space-y-2 sm:space-y-3">
@@ -231,7 +236,10 @@ const Room = () => {
           </div>
 
           {/* Input - floating at bottom */}
-          <div className="fixed bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[95%] sm:max-w-[780px] px-2 sm:px-4">
+          <div
+            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[95%] sm:max-w-[780px] px-2 sm:px-4"
+            style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}
+          >
             <ChatInput
               onSend={handleSend}
               onFileUpload={sendFile}
