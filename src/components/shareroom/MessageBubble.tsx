@@ -214,7 +214,7 @@ export const MessageBubble = ({
                   </div>
                 ) : (
                   <div key={i} className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-white" style={{ backgroundColor: '#1c1b1b' }}>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-white">
                       {part.content}
                     </p>
                   </div>
