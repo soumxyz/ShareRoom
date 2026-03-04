@@ -39,7 +39,7 @@ export const ChatInput = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sending) return;
-    
+
     setSending(true);
     try {
       if (pastedImage) {
@@ -117,9 +117,9 @@ export const ChatInput = ({
               <X className="w-3.5 h-3.5" />
             </Button>
           </div>
-          <img 
-            src={URL.createObjectURL(pastedImage)} 
-            alt="Pasted screenshot" 
+          <img
+            src={URL.createObjectURL(pastedImage)}
+            alt="Pasted screenshot"
             className="max-w-full max-h-32 rounded object-contain"
           />
         </div>

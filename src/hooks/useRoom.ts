@@ -334,35 +334,62 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       return;
     }
 
-    const filePath = `${room.id}/${Date.now()}-${file.name}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('room-files')
-      .upload(filePath, file);
-
-    if (uploadError) {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_SIZE) {
       toast({
-        title: 'Upload failed',
-        description: uploadError.message,
+        title: 'File too large',
+        description: 'Maximum file size is 5 MB',
         variant: 'destructive',
       });
       return;
     }
 
-    const { data: urlData } = supabase.storage
-      .from('room-files')
-      .getPublicUrl(filePath);
-
-    await supabase.from('messages').insert({
-      room_id: room.id,
-      participant_id: participant.id,
-      username: participant.username,
-      content: `Shared file: ${file.name}`,
-      message_type: 'file',
-      file_url: urlData.publicUrl,
-      file_name: file.name,
-      file_type: file.type,
+    // Convert file to base64 data URL (no storage bucket needed)
+    const fileDataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    }).catch((err) => {
+      toast({
+        title: 'Failed to read file',
+        description: err?.message ?? 'Unknown error',
+        variant: 'destructive',
+      });
+      return null;
     });
+
+    if (!fileDataUrl) return;
+
+    const { data: newMessage, error: insertError } = await supabase
+      .from('messages')
+      .insert({
+        room_id: room.id,
+        participant_id: participant.id,
+        username: participant.username,
+        content: `Shared file: ${file.name}`,
+        message_type: 'file',
+        file_url: fileDataUrl,
+        file_name: file.name,
+        file_type: file.type,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      toast({
+        title: 'Failed to send file',
+        description: insertError.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Manually push into state so sender sees it immediately,
+    // regardless of realtime payload size limits
+    if (newMessage) {
+      setMessages((prev) => [...prev, newMessage as Message]);
+    }
   };
 
   // Host actions
