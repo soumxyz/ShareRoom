@@ -349,14 +349,46 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       return;
     }
 
-    await supabase.from('messages').insert({
+    // Optimistic update — show message immediately to the sender
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    const optimisticMsg: Message = {
+      id: tempId,
       room_id: room.id,
       participant_id: participant.id,
       username: participant.username,
       content,
       message_type: 'text',
       reply_to_id: replyToId || null,
-    });
+      file_url: null,
+      file_name: null,
+      file_type: null,
+      is_system: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+
+    const { data: inserted, error: insertError } = await supabase.from('messages').insert({
+      room_id: room.id,
+      participant_id: participant.id,
+      username: participant.username,
+      content,
+      message_type: 'text',
+      reply_to_id: replyToId || null,
+    }).select().single();
+
+    if (insertError) {
+      // Roll back the optimistic message on failure
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      toast({ title: 'Failed to send message', description: insertError.message, variant: 'destructive' });
+      return;
+    }
+
+    // Replace temp message with the real one from the server
+    if (inserted) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? (inserted as Message) : m))
+      );
+    }
   };
 
   // Send file
