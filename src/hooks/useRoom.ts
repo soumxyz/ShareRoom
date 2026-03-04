@@ -360,7 +360,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   };
 
   // Send file
-  const sendFile = async (file: File) => {
+  const sendFile = async (file: File, onProgress?: (pct: number) => void) => {
     if (!room || !participant) return;
 
     if (participant.is_muted) {
@@ -384,16 +384,26 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     if (file.size > MAX_SIZE) {
       toast({
         title: 'File too large',
-        description: 'Maximum file size is 5 MB',
+        description: 'Maximum file size is 10 MB',
         variant: 'destructive',
       });
       return;
     }
 
-    // Convert file to base64 data URL (no storage bucket needed)
+    onProgress?.(0);
+
+    // Convert file to base64 data URL, reporting read progress 0→90%
     const fileDataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
+      reader.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress?.(Math.round((e.loaded / e.total) * 90));
+        }
+      };
+      reader.onload = () => {
+        onProgress?.(90);
+        resolve(reader.result as string);
+      };
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
     }).catch((err) => {
@@ -406,6 +416,9 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     });
 
     if (!fileDataUrl) return;
+
+    // Saving to DB: show 95%
+    onProgress?.(95);
 
     const { data: newMessage, error: insertError } = await supabase
       .from('messages')
@@ -430,6 +443,8 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       });
       return;
     }
+
+    onProgress?.(100);
 
     // Manually push into state so sender sees it immediately,
     // regardless of realtime payload size limits
