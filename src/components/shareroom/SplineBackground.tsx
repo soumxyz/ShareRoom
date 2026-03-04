@@ -23,10 +23,10 @@ export const SplineBackground = () => {
         }
       >
         <Spline
-          scene="https://prod.spline.design/g56M0W6eC3Z2-a6m/scene.splinecode"
+          scene="https://prod.spline.design/XGJ5bjx7JEXrQBOk/scene.splinecode"
           className="absolute inset-0 w-full h-full"
-          style={{ 
-            width: '100%', 
+          style={{
+            width: '100%',
             height: '100%',
             position: 'absolute',
             top: 0,

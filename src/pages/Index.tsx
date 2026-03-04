@@ -136,7 +136,7 @@ const Index = () => {
 
             {step === 'options' && (
               <div className="text-center animate-fade-in w-full">
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 font-mono truncate whitespace-nowrap overflow-hidden">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 truncate whitespace-nowrap overflow-hidden">
                   <span className="text-white font-normal">Welcome, </span><Typewriter text={username} className="font-bold" speed={150} />
                 </p>
               </div>
