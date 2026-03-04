@@ -216,6 +216,31 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   useEffect(() => {
     if (!room) return;
 
+    // Polling fallback: catches file messages whose large base64 payload
+    // exceeded Supabase Realtime's ~1MB limit and was dropped entirely
+    const pollInterval = setInterval(async () => {
+      setMessages((prev) => {
+        const latest = prev[prev.length - 1];
+        if (!latest) return prev;
+        supabase
+          .from('messages')
+          .select('*')
+          .eq('room_id', room.id)
+          .gt('created_at', latest.created_at)
+          .order('created_at', { ascending: true })
+          .then(({ data }) => {
+            if (data && data.length > 0) {
+              setMessages((current) => {
+                const existingIds = new Set(current.map((m) => m.id));
+                const newMsgs = data.filter((m) => !existingIds.has(m.id));
+                return newMsgs.length > 0 ? [...current, ...newMsgs as Message[]] : current;
+              });
+            }
+          });
+        return prev;
+      });
+    }, 5000);
+
     const channel = supabase
       .channel(`room-${room.id}`)
       .on(
@@ -226,8 +251,28 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
           table: 'messages',
           filter: `room_id=eq.${room.id}`,
         },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+        async (payload) => {
+          const msg = payload.new as Message;
+          // File messages carry a large base64 file_url — always fetch fresh
+          // from DB to ensure we get the complete data even if payload was truncated
+          if (msg.message_type === 'file') {
+            const { data: fullMsg } = await supabase
+              .from('messages')
+              .select('*')
+              .eq('id', msg.id)
+              .single();
+            if (fullMsg) {
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === fullMsg.id)) return prev;
+                return [...prev, fullMsg as Message];
+              });
+            }
+          } else {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev;
+              return [...prev, msg];
+            });
+          }
         }
       )
       .on(
@@ -280,6 +325,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [room]);
 
