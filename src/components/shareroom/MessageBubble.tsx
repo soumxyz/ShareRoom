@@ -99,6 +99,7 @@ export const MessageBubble = ({
   };
 
   const contentParts = parseContent(message.content);
+  const hasCode = contentParts.some((p) => p.type === 'code');
 
   const isPdf = message.file_type?.includes('pdf');
   const isTxt = message.file_name?.endsWith('.txt');
@@ -130,11 +131,9 @@ export const MessageBubble = ({
         </div>
       )}
 
-      <div className={`flex items-end gap-1 sm:gap-2 max-w-[90%] sm:max-w-[75%] ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
+      <div className={`flex items-end gap-1 sm:gap-2 ${hasCode ? 'max-w-[98%] sm:max-w-[85%]' : 'max-w-[90%] sm:max-w-[75%]'} ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
         {/* Message bubble */}
-        <div
-          className={`relative text-sm text-white`}
-        >
+        <div className="relative text-sm text-white min-w-0 w-full">
           {/* File message */}
           {message.message_type === 'file' && message.file_url && (
             <div className="space-y-2">
@@ -209,7 +208,7 @@ export const MessageBubble = ({
             <div className="space-y-2">
               {contentParts.map((part, i) =>
                 part.type === 'code' ? (
-                  <div key={i} className="overflow-hidden rounded-lg -mx-1 my-1 bg-transparent">
+                  <div key={i} className="w-full my-1 rounded-lg overflow-hidden">
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (

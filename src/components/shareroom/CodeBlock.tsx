@@ -26,7 +26,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
   };
 
   return (
-    <div className="relative group overflow-hidden max-w-full rounded-lg">
+    <div className="relative group max-w-full rounded-lg" style={{ minWidth: 0 }}>
       {/* Header */}
       <div className="flex items-center justify-between px-2 sm:px-3 py-2 border-b border-gray-700" style={{ backgroundColor: '#141414' }}>
         <div className="flex items-center gap-2">
@@ -62,9 +62,12 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
       </div>
 
       {/* Code content - scrolls inside itself */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[300px] sm:max-h-[400px] code-scrollbar" style={{ backgroundColor: '#141414' }}>
-        <pre className="p-3 sm:p-4 text-xs sm:text-sm font-mono min-w-0 text-gray-100">
-          <code className="flex">
+      <div
+        className="overflow-x-auto overflow-y-auto max-h-[220px] sm:max-h-[400px] code-scrollbar"
+        style={{ backgroundColor: '#141414', WebkitOverflowScrolling: 'touch' }}
+      >
+        <pre className="p-3 sm:p-4 text-xs sm:text-sm font-mono min-w-max text-gray-100">
+          <code className="inline-flex min-w-max">
             {showLineNumbers && (
               <span className="select-none pr-2 sm:pr-4 mr-2 sm:mr-4 border-r border-mono-300 text-mono-400 text-right min-w-[2rem] sm:min-w-[2.5rem] shrink-0">
                 {lines.map((_, i) => (

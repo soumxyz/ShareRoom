@@ -82,8 +82,6 @@ export const RoomHeader = ({
             onClick={copyCode}
             className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-full bg-mono-100/80 hover:bg-mono-200/80 transition-colors border border-mono-200/50 touch-target"
           >
-            {/* Room name visible only on mobile */}
-            <span className="font-medium text-xs text-mono-700 max-w-[80px] truncate md:hidden">{roomName}</span>
             <span className="font-mono text-xs tracking-wider text-mono-700">{roomCode}</span>
             {copied ? (
               <Check className="w-3.5 h-3.5 text-success" />

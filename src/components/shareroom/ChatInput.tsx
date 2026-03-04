@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Code, X, ArrowRight, Plus, Paperclip } from 'lucide-react';
@@ -27,6 +27,14 @@ export const ChatInput = ({
   const [fileProgress, setFileProgress] = useState<number | null>(null); // null=idle, 0–100=progress
   const [fileProgressName, setFileProgressName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeTextarea = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }, []);
 
   useEffect(() => {
     if (codeMode) {
@@ -58,6 +66,7 @@ export const ChatInput = ({
           await onSend(message.trim());
         }
         setMessage('');
+        if (textareaRef.current) textareaRef.current.style.height = 'auto';
       }
     } finally {
       setSending(false);
@@ -157,7 +166,7 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-lg mobile-optimized smooth-transition">
+      <div className="flex items-end gap-1 sm:gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl shadow-lg mobile-optimized smooth-transition">
         <input
           ref={fileInputRef}
           type="file"
@@ -177,26 +186,19 @@ export const ChatInput = ({
           <Plus className="w-4 h-4" />
         </Button>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1 sm:gap-2 min-w-0">
+        <form onSubmit={handleSubmit} className="flex-1 flex items-end gap-1 sm:gap-2 min-w-0">
           <div className="flex-1 min-w-0">
             <Textarea
+              ref={textareaRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => { setMessage(e.target.value); resizeTextarea(); }}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder={
-                isSendingFile
-                  ? 'Sending file…'
-                  : pastedImage
-                    ? 'Press Enter to send image'
-                    : codeMode
-                      ? 'Type code...'
-                      : 'Type a message...'
-              }
+              placeholder=""
               disabled={disabled || isSendingFile}
-              className={`min-h-[20px] sm:min-h-[24px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-white placeholder:text-white/60 focus-visible:ring-0 focus-visible:ring-offset-0 border-0 p-0 text-sm will-change-contents ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[20px] sm:min-h-[24px] resize-none bg-transparent text-white caret-white placeholder:text-white/60 placeholder:align-middle focus-visible:ring-0 focus-visible:ring-offset-0 border-0 p-0 text-sm text-left leading-5 will-change-contents overflow-hidden ${codeMode ? 'font-mono' : ''}`}
               rows={1}
-              style={{ WebkitAppearance: 'none' }}
+              style={{ WebkitAppearance: 'none', height: 'auto', maxHeight: '160px', overflowY: 'auto' }}
             />
           </div>
 
