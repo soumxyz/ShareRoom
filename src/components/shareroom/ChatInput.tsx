@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Plus, Code, X, ArrowRight } from 'lucide-react';
 import { LoaderOne } from '@/components/ui/loader';
+import { toast } from '@/hooks/use-toast';
 
 interface ChatInputProps {
   onSend: (content: string) => void;
@@ -24,6 +25,16 @@ export const ChatInput = ({
   const [pastedImage, setPastedImage] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (codeMode) {
+      toast({
+        title: 'Code mode ON',
+        description: 'Messages will be sent as code blocks',
+        duration: 2000,
+      });
+    }
+  }, [codeMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,12 +106,7 @@ export const ChatInput = ({
       )}
 
       {/* Code mode indicator */}
-      {codeMode && (
-        <div className="indicator-bar mb-2 border-mono-300">
-          <Code className="w-3.5 h-3.5 text-mono-600 shrink-0" />
-          <span className="text-xs text-mono-600 truncate">Code mode ON - sent as code block</span>
-        </div>
-      )}
+      {/* Removed - now using toast notification instead */}
 
       {/* Pasted image preview */}
       {pastedImage && (
@@ -134,7 +140,7 @@ export const ChatInput = ({
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20"
+          className="shrink-0 h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700"
         >
           <Plus className="w-4 h-4" />
         </Button>
@@ -148,7 +154,7 @@ export const ChatInput = ({
               onPaste={handlePaste}
               placeholder={pastedImage ? "Press Enter to send image" : (codeMode ? "Type code..." : "Type a message...")}
               disabled={disabled}
-              className={`min-h-[32px] sm:min-h-[36px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-mono-800 placeholder:text-mono-400 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm will-change-contents ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-[20px] sm:min-h-[24px] max-h-[100px] sm:max-h-[120px] resize-none bg-transparent text-white placeholder:text-white/60 focus-visible:ring-0 focus-visible:ring-offset-0 border-0 p-0 text-sm will-change-contents ${codeMode ? 'font-mono' : ''}`}
               rows={1}
               style={{ WebkitAppearance: 'none' }}
             />

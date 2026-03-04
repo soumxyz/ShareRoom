@@ -107,7 +107,7 @@ export const MessageBubble = ({
   return (
     <div
       id={`message-${message.id}`}
-      className={`group flex flex-col ${isOwn ? 'items-end animate-message-send' : 'items-start animate-message-receive'} mb-3`}
+      className={`group flex flex-col ${isOwn ? 'items-end' : 'items-start'} mb-3`}
     >
       {/* Reply reference */}
       {replyMessage && (
@@ -130,7 +130,7 @@ export const MessageBubble = ({
         </div>
       )}
 
-      <div className={`flex items-end gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex items-end gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%] ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
         {/* Message bubble */}
         <div
           className={`relative text-sm text-white`}
@@ -213,7 +213,7 @@ export const MessageBubble = ({
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (
-                  <div key={i} className="bg-white text-black px-3 sm:px-4 py-2 sm:py-2.5 rounded-full">
+                  <div key={i} className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl ${isOwn ? 'text-white' : 'text-gray-900'}`} style={{ backgroundColor: '#1c1b1b' }}>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                       {part.content}
                     </p>

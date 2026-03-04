@@ -28,7 +28,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
   return (
     <div className="relative group overflow-hidden max-w-full rounded-lg">
       {/* Header */}
-      <div className="flex items-center justify-between px-2 sm:px-3 py-2 bg-gray-800 border-b border-gray-700">
+      <div className="flex items-center justify-between px-2 sm:px-3 py-2 border-b border-gray-700" style={{ backgroundColor: '#141414' }}>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-destructive/60" />
@@ -62,7 +62,7 @@ export const CodeBlock = ({ code, language }: CodeBlockProps) => {
       </div>
 
       {/* Code content - scrolls inside itself */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[300px] sm:max-h-[400px] code-scrollbar bg-gray-900">
+      <div className="overflow-x-auto overflow-y-auto max-h-[300px] sm:max-h-[400px] code-scrollbar" style={{ backgroundColor: '#141414' }}>
         <pre className="p-3 sm:p-4 text-xs sm:text-sm font-mono min-w-0 text-gray-100">
           <code className="flex">
             {showLineNumbers && (
