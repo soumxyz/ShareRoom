@@ -212,8 +212,8 @@ export const MessageBubble = ({
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (
-                  <div key={i} className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-white" style={{ backgroundColor: '#1c1b1b' }}>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-white">
+                  <div key={i} className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-white font-mono" style={{ backgroundColor: '#1c1b1b' }}>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-white font-mono">
                       {part.content}
                     </p>
                   </div>
