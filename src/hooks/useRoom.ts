@@ -1,7 +1,42 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { mockDb, Message, Participant, Room } from '@/lib/mockDb';
+import { supabase } from '@/integrations/supabase/client';
 import { getFingerprint } from '@/lib/fingerprint';
 import { toast } from '@/hooks/use-toast';
+
+// Types matching the Supabase schema
+export interface Room {
+  id: string;
+  code: string;
+  name: string;
+  host_fingerprint: string;
+  is_locked: boolean;
+  created_at: string;
+}
+
+export interface Participant {
+  id: string;
+  room_id: string;
+  username: string;
+  fingerprint: string;
+  is_muted: boolean;
+  is_banned: boolean;
+  joined_at: string;
+}
+
+export interface Message {
+  id: string;
+  room_id: string;
+  participant_id: string | null;
+  username: string;
+  content: string | null;
+  message_type: string;
+  reply_to_id: string | null;
+  file_url: string | null;
+  file_name: string | null;
+  file_type: string | null;
+  is_system: boolean;
+  created_at: string;
+}
 
 export const useRoom = (roomCode: string | null, username: string | null) => {
   const [room, setRoom] = useState<Room | null>(null);
@@ -13,11 +48,9 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   const [error, setError] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string | null>(null);
 
-  // Use refs for subscription callbacks so they always see latest state
   const roomRef = useRef<Room | null>(null);
   const participantRef = useRef<Participant | null>(null);
 
-  // Keep refs in sync with state
   useEffect(() => { roomRef.current = room; }, [room]);
   useEffect(() => { participantRef.current = participant; }, [participant]);
 
@@ -30,45 +63,107 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     return () => { cancelled = true; };
   }, []);
 
+  // Main data loading
   const loadData = useCallback(async () => {
     if (!roomCode || !username || !fingerprint) return;
 
     try {
       const code = roomCode.toUpperCase();
-      console.log('[useRoom] Looking up room with code:', code);
-      const roomData = await mockDb.getRoomByCode(code);
-      
+      console.log('[useRoom] Looking up room:', code);
+
+      // Fetch room by code
+      const { data: roomData, error: roomError } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle();
+
+      if (roomError) throw roomError;
       if (!roomData) {
-        console.error('[useRoom] Room not found for code:', code);
         setError('Room not found');
         setLoading(false);
         return;
       }
 
-      console.log('[useRoom] Room found:', roomData.id, roomData.name);
-      setRoom(roomData);
+      console.log('[useRoom] Room found:', roomData.id);
+      setRoom(roomData as Room);
       setIsHost(roomData.host_fingerprint === fingerprint);
 
-      // Join room
-      const currentParticipant = await mockDb.joinRoom(roomData.id, username, fingerprint);
-      
-      if (currentParticipant.is_banned) {
+      // Check if banned
+      const { data: banData } = await supabase
+        .from('banned_fingerprints')
+        .select('id')
+        .eq('room_id', roomData.id)
+        .eq('fingerprint', fingerprint)
+        .maybeSingle();
+
+      if (banData) {
         setError('You are banned from this room');
         setLoading(false);
         return;
       }
 
-      console.log('[useRoom] Joined as participant:', currentParticipant.id, currentParticipant.username);
-      setParticipant(currentParticipant);
+      // Check existing participant or create new
+      let { data: existingParticipant } = await supabase
+        .from('room_participants')
+        .select('*')
+        .eq('room_id', roomData.id)
+        .eq('fingerprint', fingerprint)
+        .maybeSingle();
+
+      if (existingParticipant) {
+        // Update username if changed
+        if (existingParticipant.username !== username) {
+          await supabase
+            .from('room_participants')
+            .update({ username })
+            .eq('id', existingParticipant.id);
+          existingParticipant.username = username;
+        }
+        setParticipant(existingParticipant as Participant);
+      } else {
+        // Join room - create participant
+        const { data: newParticipant, error: joinError } = await supabase
+          .from('room_participants')
+          .insert({
+            room_id: roomData.id,
+            username,
+            fingerprint,
+          })
+          .select()
+          .single();
+
+        if (joinError) throw joinError;
+        setParticipant(newParticipant as Participant);
+
+        // Add system message
+        await supabase.from('messages').insert({
+          room_id: roomData.id,
+          participant_id: newParticipant.id,
+          username: 'System',
+          content: `${username} joined the room`,
+          message_type: 'system',
+          is_system: true,
+        });
+      }
 
       // Fetch participants
-      const participantsData = await mockDb.getParticipants(roomData.id);
-      setParticipants(participantsData);
+      const { data: participantsData } = await supabase
+        .from('room_participants')
+        .select('*')
+        .eq('room_id', roomData.id)
+        .eq('is_banned', false);
+
+      setParticipants((participantsData || []) as Participant[]);
 
       // Fetch messages
-      const messagesData = await mockDb.getMessages(roomData.id);
-      setMessages(messagesData);
+      const { data: messagesData } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('room_id', roomData.id)
+        .order('created_at', { ascending: true });
 
+      setMessages((messagesData || []) as Message[]);
       setLoading(false);
     } catch (err: any) {
       console.error('[useRoom] Error loading room:', err);
@@ -83,44 +178,67 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     }
   }, [roomCode, username, fingerprint, loadData]);
 
-  // Subscriptions for mockDb — uses refs to avoid re-subscribing on state changes
+  // Real-time subscriptions via Supabase
   useEffect(() => {
     if (!room) return;
 
     const roomId = room.id;
 
-    const unsubRooms = mockDb.subscribe('rooms', async () => {
-      const updatedRoom = await mockDb.getRoomById(roomId);
-      if (updatedRoom) setRoom(updatedRoom);
-    });
-
-    const unsubParticipants = mockDb.subscribe('participants', async () => {
-      const updatedParticipants = await mockDb.getParticipants(roomId);
-      setParticipants(updatedParticipants);
-      
-      const currentParticipant = participantRef.current;
-      if (currentParticipant) {
-        const updatedMe = updatedParticipants.find(p => p.id === currentParticipant.id);
-        if (updatedMe) {
-          setParticipant(updatedMe);
-          if (updatedMe.is_banned) {
-             setError('You have been kicked/banned from this room.');
+    const channel = supabase
+      .channel(`room-${roomId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
+        async () => {
+          const { data } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('room_id', roomId)
+            .order('created_at', { ascending: true });
+          if (data) setMessages(data as Message[]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'room_participants', filter: `room_id=eq.${roomId}` },
+        async () => {
+          const { data } = await supabase
+            .from('room_participants')
+            .select('*')
+            .eq('room_id', roomId)
+            .eq('is_banned', false);
+          if (data) {
+            setParticipants(data as Participant[]);
+            const me = participantRef.current;
+            if (me) {
+              const updatedMe = data.find((p: any) => p.id === me.id);
+              if (updatedMe) {
+                setParticipant(updatedMe as Participant);
+                if (updatedMe.is_banned) {
+                  setError('You have been kicked/banned from this room.');
+                }
+              }
+            }
           }
         }
-      }
-    });
-
-    const unsubMessages = mockDb.subscribe('messages', async () => {
-      const updatedMessages = await mockDb.getMessages(roomId);
-      setMessages(updatedMessages);
-    });
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` },
+        async () => {
+          const { data } = await supabase
+            .from('rooms')
+            .select('*')
+            .eq('id', roomId)
+            .maybeSingle();
+          if (data) setRoom(data as Room);
+        }
+      )
+      .subscribe();
 
     return () => {
-      unsubRooms();
-      unsubParticipants();
-      unsubMessages();
+      supabase.removeChannel(channel);
     };
-  // Only re-subscribe when the room ID changes, not on every participant change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.id]);
 
@@ -136,16 +254,13 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       return;
     }
 
-    await mockDb.addMessage({
+    await supabase.from('messages').insert({
       room_id: room.id,
       participant_id: participant.id,
       username: participant.username,
       content,
       message_type: 'text',
       reply_to_id: replyToId || null,
-      file_url: null,
-      file_name: null,
-      file_type: null,
       is_system: false,
     });
   };
@@ -176,13 +291,12 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
 
     onProgress?.(95);
 
-    await mockDb.addMessage({
+    await supabase.from('messages').insert({
       room_id: room.id,
       participant_id: participant.id,
       username: participant.username,
       content: `Shared file: ${file.name}`,
       message_type: 'file',
-      reply_to_id: null,
       file_url: fileDataUrl,
       file_name: file.name,
       file_type: file.type,
@@ -194,27 +308,87 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
 
   const toggleLock = async () => {
     if (!room || !isHost) return;
-    await mockDb.toggleLock(room.id);
+    await supabase
+      .from('rooms')
+      .update({ is_locked: !room.is_locked })
+      .eq('id', room.id);
   };
 
   const deleteMessage = async (messageId: string) => {
     if (!isHost && !participant) return;
-    await mockDb.deleteMessage(messageId);
+    await supabase.from('messages').delete().eq('id', messageId);
   };
 
   const muteUser = async (participantId: string) => {
     if (!isHost) return;
-    await mockDb.muteUser(participantId);
+    // Fetch current mute status first
+    const { data } = await supabase
+      .from('room_participants')
+      .select('is_muted')
+      .eq('id', participantId)
+      .single();
+    if (data) {
+      await supabase
+        .from('room_participants')
+        .update({ is_muted: !data.is_muted })
+        .eq('id', participantId);
+    }
   };
 
   const kickUser = async (participantId: string, ban: boolean = false) => {
     if (!isHost || !room) return;
-    await mockDb.kickUser(room.id, participantId, ban);
+
+    // Get participant info for system message
+    const { data: kickedParticipant } = await supabase
+      .from('room_participants')
+      .select('*')
+      .eq('id', participantId)
+      .single();
+
+    if (!kickedParticipant) return;
+
+    // Mark as banned
+    await supabase
+      .from('room_participants')
+      .update({ is_banned: true })
+      .eq('id', participantId);
+
+    if (ban) {
+      // Add to banned fingerprints
+      await supabase.from('banned_fingerprints').insert({
+        room_id: room.id,
+        fingerprint: kickedParticipant.fingerprint,
+      });
+    }
+
+    // System message
+    await supabase.from('messages').insert({
+      room_id: room.id,
+      participant_id: null,
+      username: 'System',
+      content: `${kickedParticipant.username} was ${ban ? 'banned' : 'kicked'} from the room`,
+      message_type: 'system',
+      is_system: true,
+    });
   };
 
   const leaveRoom = async () => {
     if (room && participant) {
-      await mockDb.leaveRoom(room.id, participant.id);
+      // Add leave message
+      await supabase.from('messages').insert({
+        room_id: room.id,
+        participant_id: null,
+        username: 'System',
+        content: `${participant.username} left the room`,
+        message_type: 'system',
+        is_system: true,
+      });
+
+      // Remove participant
+      await supabase
+        .from('room_participants')
+        .delete()
+        .eq('id', participant.id);
     }
     setMessages([]);
     setParticipants([]);

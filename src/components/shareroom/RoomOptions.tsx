@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, LogIn, Hash } from 'lucide-react';
-import { mockDb } from '@/lib/mockDb';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RoomOptionsProps {
   onCreateRoom: () => Promise<void>;
@@ -28,7 +28,13 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
     setJoining(true);
     setError('');
     try {
-      const room = await mockDb.getRoomByCode(code);
+      const { data: room, error: fetchError } = await supabase
+        .from('rooms')
+        .select('id, is_locked')
+        .eq('code', code)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
       if (!room) {
         setError('Room not found. Please check the code.');
         setJoining(false);

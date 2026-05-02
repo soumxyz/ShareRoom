@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
 import { Typewriter } from '@/components/ui/typewriter';
 import { useToast } from '@/hooks/use-toast';
-import { mockDb } from '@/lib/mockDb';
+import { supabase } from '@/integrations/supabase/client';
 
 
 type Step = 'username' | 'options' | 'created';
@@ -81,8 +81,19 @@ const Index = () => {
     setLoading(true);
     try {
       const fingerprint = await getFingerprint();
+      const code = generateRoomCode();
       
-      const newRoom = await mockDb.createRoom(`${username}'s Room`, fingerprint);
+      const { data: newRoom, error } = await supabase
+        .from('rooms')
+        .insert({
+          code,
+          name: `${username}'s Room`,
+          host_fingerprint: fingerprint,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
 
       setRoomCode(newRoom.code);
       setStep('created');
