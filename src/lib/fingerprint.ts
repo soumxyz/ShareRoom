@@ -3,8 +3,8 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs';
 let fingerprintPromise: Promise<string> | null = null;
 
 export const getFingerprint = async (): Promise<string> => {
-  // Check sessionStorage first so each tab can be a unique user for testing
-  const stored = sessionStorage.getItem('shareroom_fingerprint');
+  // Check localStorage for a stable fingerprint across page reloads
+  const stored = localStorage.getItem('shareroom_fingerprint');
   if (stored) return stored;
 
   if (!fingerprintPromise) {
@@ -16,8 +16,7 @@ export const getFingerprint = async (): Promise<string> => {
         console.log('FingerprintJS loaded, getting result...');
         const result = await fp.get();
         console.log('Fingerprint generated:', result.visitorId);
-        // Append a random session ID to allow multiple tabs in the same browser to act as different users
-        visitorId = result.visitorId + '_' + Math.random().toString(36).substr(2, 6);
+        visitorId = result.visitorId;
       } catch (error) {
         console.error('Error generating fingerprint:', error);
         // Fallback to a simple random ID if fingerprinting fails
@@ -25,7 +24,7 @@ export const getFingerprint = async (): Promise<string> => {
         console.log('Using fallback fingerprint:', visitorId);
       }
 
-      sessionStorage.setItem('shareroom_fingerprint', visitorId);
+      localStorage.setItem('shareroom_fingerprint', visitorId);
       return visitorId;
     })();
   }

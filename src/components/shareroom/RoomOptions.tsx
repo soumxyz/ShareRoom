@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, LogIn, Hash } from 'lucide-react';
+import { mockDb } from '@/lib/mockDb';
 
 interface RoomOptionsProps {
   onCreateRoom: () => Promise<void>;
@@ -13,15 +14,36 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
   const [mode, setMode] = useState<'choose' | 'join'>('choose');
   const [roomCode, setRoomCode] = useState('');
   const [error, setError] = useState('');
+  const [joining, setJoining] = useState(false);
 
-  const handleJoin = (e: React.FormEvent) => {
+  const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = roomCode.trim().toUpperCase();
     if (code.length !== 6) {
       setError('Room code must be 6 characters');
       return;
     }
-    onJoinRoom(code);
+
+    // Validate the room exists before navigating
+    setJoining(true);
+    setError('');
+    try {
+      const room = await mockDb.getRoomByCode(code);
+      if (!room) {
+        setError('Room not found. Please check the code.');
+        setJoining(false);
+        return;
+      }
+      if (room.is_locked) {
+        setError('This room is locked.');
+        setJoining(false);
+        return;
+      }
+      onJoinRoom(code);
+    } catch (err) {
+      setError('Failed to join room. Please try again.');
+      setJoining(false);
+    }
   };
 
   if (mode === 'join') {
@@ -52,18 +74,18 @@ export const RoomOptions = ({ onCreateRoom, onJoinRoom, loading }: RoomOptionsPr
           <Button
             type="button"
             variant="outline"
-            onClick={() => setMode('choose')}
+            onClick={() => { setMode('choose'); setError(''); }}
             className="flex-1 h-12 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white rounded-full"
-            disabled={loading}
+            disabled={loading || joining}
           >
             Back
           </Button>
           <Button
             type="submit"
             className="flex-1 h-12 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white font-semibold rounded-full"
-            disabled={loading || roomCode.length !== 6}
+            disabled={loading || joining || roomCode.length !== 6}
           >
-            {loading ? 'Joining...' : 'Join Room'}
+            {joining ? 'Joining...' : 'Join Room'}
           </Button>
         </div>
       </form>

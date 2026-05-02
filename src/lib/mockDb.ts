@@ -134,12 +134,16 @@ class MockDb {
         // Add system message
         await this.addMessage({
             room_id: roomId,
-            participant_id: participant.id,
+            participant_id: null,
             username: 'System',
             content: `${username} joined the room`,
             message_type: 'system',
+            reply_to_id: null,
+            file_url: null,
+            file_name: null,
+            file_type: null,
             is_system: true,
-        } as any);
+        });
 
         return participant;
     }
@@ -201,12 +205,16 @@ class MockDb {
         // Add leave message
         await this.addMessage({
             room_id: roomId,
-            participant_id: participantId,
+            participant_id: null,
             username: 'System',
             content: `${username} left the room`,
             message_type: 'system',
+            reply_to_id: null,
+            file_url: null,
+            file_name: null,
+            file_type: null,
             is_system: true,
-        } as any);
+        });
     }
 
     async muteUser(participantId: string) {
@@ -238,8 +246,12 @@ class MockDb {
             username: 'System',
             content: `${participant.username} was ${ban ? 'banned' : 'kicked'} from the room`,
             message_type: 'system',
+            reply_to_id: null,
+            file_url: null,
+            file_name: null,
+            file_type: null,
             is_system: true,
-        } as any);
+        });
     }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { mockDb, Message, Participant, Room } from '@/lib/mockDb';
 import { getFingerprint } from '@/lib/fingerprint';
 import { toast } from '@/hooks/use-toast';
@@ -13,23 +13,39 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
   const [error, setError] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string | null>(null);
 
+  // Use refs for subscription callbacks so they always see latest state
+  const roomRef = useRef<Room | null>(null);
+  const participantRef = useRef<Participant | null>(null);
+
+  // Keep refs in sync with state
+  useEffect(() => { roomRef.current = room; }, [room]);
+  useEffect(() => { participantRef.current = participant; }, [participant]);
+
   // Initialize fingerprint
   useEffect(() => {
-    getFingerprint().then(setFingerprint);
+    let cancelled = false;
+    getFingerprint().then((fp) => {
+      if (!cancelled) setFingerprint(fp);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   const loadData = useCallback(async () => {
     if (!roomCode || !username || !fingerprint) return;
 
     try {
-      const roomData = await mockDb.getRoomByCode(roomCode.toUpperCase());
+      const code = roomCode.toUpperCase();
+      console.log('[useRoom] Looking up room with code:', code);
+      const roomData = await mockDb.getRoomByCode(code);
       
       if (!roomData) {
+        console.error('[useRoom] Room not found for code:', code);
         setError('Room not found');
         setLoading(false);
         return;
       }
 
+      console.log('[useRoom] Room found:', roomData.id, roomData.name);
       setRoom(roomData);
       setIsHost(roomData.host_fingerprint === fingerprint);
 
@@ -42,6 +58,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
         return;
       }
 
+      console.log('[useRoom] Joined as participant:', currentParticipant.id, currentParticipant.username);
       setParticipant(currentParticipant);
 
       // Fetch participants
@@ -54,7 +71,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
 
       setLoading(false);
     } catch (err: any) {
-      console.error('Error loading room:', err);
+      console.error('[useRoom] Error loading room:', err);
       setError(err.message || 'Failed to join room');
       setLoading(false);
     }
@@ -66,21 +83,24 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     }
   }, [roomCode, username, fingerprint, loadData]);
 
-  // Subscriptions for mockDb
+  // Subscriptions for mockDb — uses refs to avoid re-subscribing on state changes
   useEffect(() => {
     if (!room) return;
 
+    const roomId = room.id;
+
     const unsubRooms = mockDb.subscribe('rooms', async () => {
-      const updatedRoom = await mockDb.getRoomById(room.id);
+      const updatedRoom = await mockDb.getRoomById(roomId);
       if (updatedRoom) setRoom(updatedRoom);
     });
 
     const unsubParticipants = mockDb.subscribe('participants', async () => {
-      const updatedParticipants = await mockDb.getParticipants(room.id);
+      const updatedParticipants = await mockDb.getParticipants(roomId);
       setParticipants(updatedParticipants);
       
-      if (participant) {
-        const updatedMe = updatedParticipants.find(p => p.id === participant.id);
+      const currentParticipant = participantRef.current;
+      if (currentParticipant) {
+        const updatedMe = updatedParticipants.find(p => p.id === currentParticipant.id);
         if (updatedMe) {
           setParticipant(updatedMe);
           if (updatedMe.is_banned) {
@@ -91,7 +111,7 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
     });
 
     const unsubMessages = mockDb.subscribe('messages', async () => {
-      const updatedMessages = await mockDb.getMessages(room.id);
+      const updatedMessages = await mockDb.getMessages(roomId);
       setMessages(updatedMessages);
     });
 
@@ -100,7 +120,9 @@ export const useRoom = (roomCode: string | null, username: string | null) => {
       unsubParticipants();
       unsubMessages();
     };
-  }, [room, participant]);
+  // Only re-subscribe when the room ID changes, not on every participant change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room?.id]);
 
   const sendMessage = async (content: string, replyToId?: string) => {
     if (!room || !participant) return;
