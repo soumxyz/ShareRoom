@@ -154,21 +154,17 @@ const Room = () => {
   if (!room) return null;
 
   return (
-    <div className="min-h-screen w-full relative">
-      {/* Background Image */}
+    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+      {/* Dark Grid Lines Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `url('/chat-bg.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundImage: `
+            linear-gradient(to right, #262626 1px, transparent 1px),
+            linear-gradient(to bottom, #262626 1px, transparent 1px)
+          `,
+          backgroundSize: "20px 20px",
         }}
-      />
-      {/* Dark overlay for readability */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
       />
       {/* Your Content Here */}
       <div className="h-screen flex flex-col relative z-10">

@@ -24,6 +24,7 @@ export const ChatInput = ({
   const [codeMode, setCodeMode] = useState(false);
   const [pastedImage, setPastedImage] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [fileProgress, setFileProgress] = useState<number | null>(null); // null=idle, 0–100=progress
   const [fileProgressName, setFileProgressName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,7 +34,9 @@ export const ChatInput = ({
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+    const newHeight = Math.min(el.scrollHeight, 160);
+    el.style.height = newHeight + 'px';
+    setIsExpanded(newHeight > 40); // 40px threshold to account for new padding
   }, []);
 
   useEffect(() => {
@@ -66,6 +69,7 @@ export const ChatInput = ({
           await onSend(message.trim());
         }
         setMessage('');
+        setIsExpanded(false);
         if (textareaRef.current) textareaRef.current.style.height = 'auto';
       }
     } finally {
@@ -166,7 +170,7 @@ export const ChatInput = ({
         </div>
       )}
 
-      <div className="flex items-end gap-1 sm:gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl shadow-lg mobile-optimized smooth-transition">
+      <div className={`flex items-end gap-1 sm:gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mobile-optimized transition-[border-radius,height,background-color] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isExpanded ? 'rounded-[1.5rem]' : 'rounded-full'}`}>
         <input
           ref={fileInputRef}
           type="file"
@@ -194,9 +198,9 @@ export const ChatInput = ({
               onChange={(e) => { setMessage(e.target.value); resizeTextarea(); }}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder=""
+              placeholder="Message..."
               disabled={disabled || isSendingFile}
-              className={`min-h-[20px] sm:min-h-[24px] resize-none bg-transparent text-white caret-white placeholder:text-white/60 placeholder:align-middle focus-visible:ring-0 focus-visible:ring-offset-0 border-0 p-0 text-sm text-left leading-5 will-change-contents overflow-hidden ${codeMode ? 'font-mono' : ''}`}
+              className={`min-h-8 sm:min-h-9 py-1.5 sm:py-2 px-2 resize-none bg-transparent text-white caret-white placeholder:text-white/60 placeholder:align-middle focus-visible:ring-0 focus-visible:ring-offset-0 border-0 not-italic font-normal text-sm text-left leading-5 will-change-contents overflow-hidden ${codeMode ? 'font-mono' : ''}`}
               rows={1}
               style={{ WebkitAppearance: 'none', height: 'auto', maxHeight: '160px', overflowY: 'auto' }}
             />

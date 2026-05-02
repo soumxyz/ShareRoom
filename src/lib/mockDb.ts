@@ -208,6 +208,39 @@ class MockDb {
             is_system: true,
         } as any);
     }
+
+    async muteUser(participantId: string) {
+        const participants = this.getItems<Participant>('participants');
+        const participant = participants.find(p => p.id === participantId);
+        if (participant) {
+            participant.is_muted = !participant.is_muted;
+            this.setItems('participants', participants);
+        }
+    }
+
+    async kickUser(roomId: string, participantId: string, ban: boolean = false) {
+        const participants = this.getItems<Participant>('participants');
+        const participant = participants.find(p => p.id === participantId);
+        if (!participant) return;
+
+        if (ban) {
+            participant.is_banned = true;
+            // Add to banned_fingerprints mock table conceptually, but here we just mark is_banned
+        }
+        
+        participant.is_banned = true; // Effectively kicked/banned
+        this.setItems('participants', participants);
+
+        // Add system message
+        await this.addMessage({
+            room_id: roomId,
+            participant_id: null,
+            username: 'System',
+            content: `${participant.username} was ${ban ? 'banned' : 'kicked'} from the room`,
+            message_type: 'system',
+            is_system: true,
+        } as any);
+    }
 }
 
 export const mockDb = new MockDb();

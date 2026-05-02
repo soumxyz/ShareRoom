@@ -64,6 +64,41 @@ export const MessageBubble = ({
     minute: '2-digit',
   });
 
+  const handleOpenDataUrl = (e: React.MouseEvent<HTMLAnchorElement>, url: string | null) => {
+    if (!url) return;
+    if (url.startsWith('data:')) {
+      e.preventDefault();
+      try {
+        const [header, base64] = url.split(',');
+        const mimeType = header.split(':')[1].split(';')[0];
+        
+        const byteCharacters = atob(base64);
+        const byteArrays = [];
+        
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+          const slice = byteCharacters.slice(offset, offset + 512);
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          byteArrays.push(byteArray);
+        }
+        
+        const blob = new Blob(byteArrays, { type: mimeType });
+        const blobUrl = URL.createObjectURL(blob);
+        
+        window.open(blobUrl, '_blank');
+        
+        // Clean up object URL after a delay
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000 * 60); 
+      } catch (err) {
+        console.error('Failed to open file:', err);
+        window.open(url, '_blank');
+      }
+    }
+  };
+
   // Parse content for code blocks
   const parseContent = (content: string | null) => {
     if (!content) return [];
@@ -170,6 +205,7 @@ export const MessageBubble = ({
                       href={message.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => handleOpenDataUrl(e, message.file_url)}
                       className={`flex items-center gap-1 text-xs hover:underline text-blue-400 hover:text-blue-300`}
                     >
                       <ExternalLink className="w-3 h-3" />
