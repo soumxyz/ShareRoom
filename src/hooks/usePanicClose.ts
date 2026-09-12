@@ -1,8 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 export const usePanicClose = (onPanic: () => Promise<void>) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const escPressCount = useRef(0);
   const escTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPanicInProgress = useRef(false);
@@ -29,7 +29,7 @@ export const usePanicClose = (onPanic: () => Promise<void>) => {
         }
         
         // Navigate using replace to prevent back navigation
-        navigate('/', { replace: true });
+        router.replace('/');
         isPanicInProgress.current = false;
       } else if (escPressCount.current === 1) {
         escTimeout.current = setTimeout(() => {
@@ -37,7 +37,7 @@ export const usePanicClose = (onPanic: () => Promise<void>) => {
         }, 600);
       }
     }
-  }, [onPanic, navigate]);
+  }, [onPanic, router]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown, { capture: true });
