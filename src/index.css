@@ -158,9 +158,13 @@
     perspective: 1000px;
   }
 
-  /* Smooth scrolling */
+  /* Base document settings & smooth scrolling */
   html {
     scroll-behavior: smooth;
+    font-family: "Inter", sans-serif;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Mobile viewport fix */
