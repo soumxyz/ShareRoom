@@ -1,4 +1,6 @@
-import { useState } from 'react';
+const fs = require('fs');
+
+const content = `import { useState } from 'react';
 import { ChevronLeft, Copy, Check, Lock, Unlock, Users, ChevronRight, MoreHorizontal } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,13 +39,13 @@ export const RoomHeader = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const fontStyle = { fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' };
+  const fontStyle = { fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif' };
 
   return (
     <header
-      className="sticky top-0 z-50 flex items-center justify-between px-6 bg-[#F5F5F7]/85 backdrop-blur-[20px] supports-[backdrop-filter]:bg-[#F5F5F7]/70"
+      className="sticky top-0 z-50 flex items-center justify-between px-6 bg-[#FAFAFA]"
       style={{ 
-        height: 'calc(64px + env(safe-area-inset-top, 0px))',
+        height: 'calc(84px + env(safe-area-inset-top, 0px))',
         paddingTop: 'env(safe-area-inset-top, 0px)',
         borderBottom: '1px solid rgba(0,0,0,0.04)'
       }}
@@ -52,24 +54,24 @@ export const RoomHeader = ({
       <div className="flex-1 flex justify-start">
         <button
           onClick={onBack}
-          className="w-[36px] h-[36px] rounded-full bg-[#F3F3F5] hover:bg-[#E5E5EA] flex items-center justify-center transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+          className="w-[44px] h-[44px] rounded-full bg-[#F3F3F5] hover:bg-[#E5E5EA] flex items-center justify-center transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-black/10"
         >
-          <ChevronLeft className="w-[20px] h-[20px] text-[#1D1D1F]" strokeWidth={2} />
+          <ChevronLeft className="w-[24px] h-[24px] text-[#1D1D1F]" strokeWidth={2} />
         </button>
       </div>
 
       {/* CENTER - Room Info */}
       <div className="flex flex-col items-center justify-center pointer-events-none" style={fontStyle}>
         <h1 
-          className="text-[#1D1D1F] text-[17px] leading-tight" 
-          style={{ letterSpacing: '-0.04em', fontWeight: 600 }}
+          className="text-[#1D1D1F] text-[28px] font-semibold leading-tight" 
+          style={{ letterSpacing: '-0.02em', fontWeight: 600 }}
         >
           {roomName}
         </h1>
-        <div className="flex items-center gap-[4px] mt-[2px]">
-          <div className="w-[6px] h-[6px] rounded-full bg-[#34C759]" />
+        <div className="flex items-center gap-[6px] mt-[2px]">
+          <div className="w-[8px] h-[8px] rounded-full bg-[#34C759]" />
           <span 
-            className="text-[#6E6E73] text-[12px] text-[#6E6E73]"
+            className="text-[#6E6E73] text-[14px] leading-tight"
             style={{ fontWeight: 500, letterSpacing: '-0.01em' }}
           >
             {participantCount} online
@@ -81,8 +83,8 @@ export const RoomHeader = ({
       <div className="flex-1 flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-[36px] h-[36px] rounded-full bg-[#F3F3F5] hover:bg-[#E5E5EA] flex items-center justify-center transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-black/10">
-              <MoreHorizontal className="w-[20px] h-[20px] text-[#1D1D1F]" strokeWidth={2} />
+            <button className="w-[44px] h-[44px] rounded-full bg-[#F3F3F5] hover:bg-[#E5E5EA] flex items-center justify-center transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-black/10">
+              <MoreHorizontal className="w-[24px] h-[24px] text-[#1D1D1F]" strokeWidth={2} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
@@ -133,3 +135,6 @@ export const RoomHeader = ({
     </header>
   );
 };
+`;
+
+fs.writeFileSync('src/components/shareroom/RoomHeader.tsx', content);

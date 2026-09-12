@@ -1,16 +1,14 @@
 import React from "react";
-import { FlipWords } from "../ui/flip-words";
+import { FlipWords } from "./flip-words";
 
 export function FlipWordsDemo() {
-  const words = ["Code", "Files", "Images"];
+  const words = ["Images", "Files", "Code", "Docs"];
 
   return (
-    <div className="flex justify-center items-center px-4">
-      <div className="text-5xl mx-auto font-normal text-white whitespace-nowrap">
-        Share
-        <FlipWords words={words} duration={2000} />
-        instantly and anonymously
-      </div>
-    </div>
+    <span className="inline-flex items-baseline justify-center whitespace-nowrap">
+      <span>Share&nbsp;</span>
+      <FlipWords words={words} duration={2400} className="text-[#0c1524] font-medium" />
+      <span>&nbsp;instantly</span>
+    </span>
   );
 }

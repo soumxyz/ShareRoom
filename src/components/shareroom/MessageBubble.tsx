@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Reply, Trash2, MoreVertical, VolumeX, UserX, ExternalLink, FileText, File, Image } from 'lucide-react';
+import { Reply, Trash2, MoreVertical, VolumeX, UserX, ExternalLink, FileText, File, Image, Presentation, FileCode, FileType2 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import {
   DropdownMenu,
@@ -27,6 +27,8 @@ interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
   isHost: boolean;
+  isLastInGroup?: boolean;
+  isFirstInGroup?: boolean;
   replyMessage?: Message | null;
   onReply: () => void;
   onDelete?: () => void;
@@ -39,6 +41,8 @@ export const MessageBubble = ({
   message,
   isOwn,
   isHost,
+  isLastInGroup = true,
+  isFirstInGroup = true,
   replyMessage,
   onReply,
   onDelete,
@@ -137,13 +141,16 @@ export const MessageBubble = ({
   const hasCode = contentParts.some((p) => p.type === 'code');
 
   const isPdf = message.file_type?.includes('pdf');
+  const isPptx = message.file_name?.endsWith('.pptx');
+  const isDocx = message.file_name?.endsWith('.docx');
+  const isIpynb = message.file_name?.endsWith('.ipynb');
   const isTxt = message.file_name?.endsWith('.txt');
   const isImage = message.file_type?.startsWith('image/');
 
   return (
     <div
       id={`message-${message.id}`}
-      className={`group flex flex-col ${isOwn ? 'items-end' : 'items-start'} mb-3`}
+      className={`group flex flex-col ${isOwn ? 'items-end' : 'items-start'} ${isLastInGroup ? 'mb-[16px]' : 'mb-[2px]'}`}
     >
       {/* Reply reference */}
       {replyMessage && (
@@ -158,13 +165,15 @@ export const MessageBubble = ({
         </button>
       )}
 
-      {/* Username and time - only for other users */}
+      {/* Username and time - hidden to match mockup */}
+      {/*
       {!isOwn && (
         <div className={`flex items-center gap-2 mb-1 ml-2`}>
           <span className="text-xs font-medium text-mono-700">{message.username}</span>
           <span className="text-[10px] text-mono-500">{time}</span>
         </div>
       )}
+      */}
 
       <div className={`flex items-end gap-1 sm:gap-2 ${hasCode ? 'max-w-[98%] sm:max-w-[85%]' : 'max-w-[90%] sm:max-w-[75%]'} ${isOwn ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'}`}>
         {/* Message bubble */}
@@ -173,29 +182,40 @@ export const MessageBubble = ({
           {message.message_type === 'file' && message.file_url && (
             <div className="space-y-2">
               {isImage ? (
-                <div className="space-y-2">
+                <div className="relative max-w-full">
                   <img
                     src={message.file_url}
                     alt={message.file_name || 'Shared image'}
-                    className="max-w-full max-h-[200px] sm:max-h-[300px] rounded-lg object-contain"
+                    className="max-w-full max-h-[300px] sm:max-w-[300px] object-cover"
+                    style={{
+                      borderRadius: '24px',
+                    }}
                     loading="lazy"
                   />
-                  <div className="flex items-center gap-2">
-                    <Image className={`w-4 h-4 shrink-0 text-white/80`} />
-                    <span className={`font-mono text-xs break-all ${isOwn ? 'text-mono-100' : 'text-mono-800'}`}>
-                      {message.file_name}
-                    </span>
-                  </div>
+                  {/* Image filename hidden to match iMessage clean aesthetic */}
                 </div>
               ) : (
-                <>
+                <div className="relative max-w-full">
+                  <div className={`px-[16px] py-[8px] flex flex-col gap-2 ${isOwn ? 'bg-[#34C759] text-white' : 'bg-[#E9E9EB] text-[#1D1D1F]'} `}
+                       style={{ 
+                         fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                         fontWeight: 400,
+                         borderRadius: '24px',
+                         /* No tail margins needed */
+                       }}>
                   <div className="flex items-center gap-2">
                     {isPdf ? (
-                      <FileText className={`w-4 h-4 shrink-0 text-red-400`} />
+                      <FileText className={`w-4 h-4 shrink-0 ${isOwn ? 'text-white' : 'text-red-500'}`} />
+                    ) : isPptx ? (
+                      <Presentation className={`w-4 h-4 shrink-0 ${isOwn ? 'text-white' : 'text-orange-500'}`} />
+                    ) : isDocx ? (
+                      <FileType2 className={`w-4 h-4 shrink-0 ${isOwn ? 'text-white' : 'text-blue-500'}`} />
+                    ) : isIpynb ? (
+                      <FileCode className={`w-4 h-4 shrink-0 ${isOwn ? 'text-white' : 'text-yellow-600'}`} />
                     ) : (
-                      <File className={`w-4 h-4 shrink-0 text-white/80`} />
+                      <File className={`w-4 h-4 shrink-0 ${isOwn ? 'text-white/80' : 'text-gray-500'}`} />
                     )}
-                    <span className={`font-mono text-xs sm:text-sm break-all text-white`}>
+                    <span className={`font-mono text-[14px] leading-tight break-all ${isOwn ? 'text-white' : 'text-[#1D1D1F]'}`}>
                       {message.file_name}
                     </span>
                   </div>
@@ -206,7 +226,7 @@ export const MessageBubble = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => handleOpenDataUrl(e, message.file_url)}
-                      className={`flex items-center gap-1 text-xs hover:underline text-blue-400 hover:text-blue-300`}
+                      className={`flex items-center gap-1 text-[13px] hover:underline font-medium ${isOwn ? 'text-white' : 'text-[#007AFF]'}`}
                     >
                       <ExternalLink className="w-3 h-3" />
                       Open
@@ -214,7 +234,7 @@ export const MessageBubble = ({
                     {(isPdf || isTxt) && (
                       <button
                         onClick={() => setShowPdfViewer(!showPdfViewer)}
-                        className={`text-xs text-white/70 hover:text-white/90`}
+                        className={`text-xs ${isOwn ? 'text-white/70 hover:text-white/90' : 'text-gray-500 hover:text-gray-700'}`}
                       >
                         {showPdfViewer ? 'Hide' : 'Preview'}
                       </button>
@@ -224,17 +244,18 @@ export const MessageBubble = ({
                   {showPdfViewer && isPdf && (
                     <iframe
                       src={message.file_url}
-                      className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2"
+                      className="w-full h-[250px] sm:h-[400px] rounded-md border border-mono-300 mt-2 bg-white"
                     />
                   )}
 
                   {showPdfViewer && isTxt && (
                     <iframe
                       src={message.file_url}
-                      className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-mono-100 mt-2"
+                      className="w-full h-[150px] sm:h-[200px] rounded-md border border-mono-300 bg-white mt-2"
                     />
                   )}
-                </>
+                </div>
+                </div>
               )}
             </div>
           )}
@@ -248,10 +269,21 @@ export const MessageBubble = ({
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 ) : (
-                  <div key={i} className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-white font-mono" style={{ backgroundColor: '#1c1b1b' }}>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-white font-mono">
-                      {part.content}
-                    </p>
+                  <div key={i} className="relative max-w-full">
+                    <div className={`px-[16px] py-[6px] flex flex-col ${isOwn ? 'bg-[#34C759] text-white' : 'bg-[#E9E9EB] text-[#1D1D1F]'}`}
+                         style={{
+                           fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                         fontWeight: 400,
+                           fontSize: '17px',
+                           lineHeight: '1.35',
+                           letterSpacing: '-0.01em',
+                           borderRadius: '24px',
+                           /* No tail margins needed */
+                         }}>
+                      <p className="whitespace-pre-wrap break-words">
+                        {part.content}
+                      </p>
+                    </div>
                   </div>
                 )
               )}
@@ -270,42 +302,16 @@ export const MessageBubble = ({
             <Reply className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </Button>
 
-          {(isHost || isOwn) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-mono-500 hover:text-mono-700 hover:bg-mono-200">
-                  <MoreVertical className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-mono-100 border-mono-300">
-                {onDelete && (
-                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                )}
-                {isHost && !isOwn && onMuteUser && (
-                  <DropdownMenuItem onClick={onMuteUser}>
-                    <VolumeX className="w-4 h-4 mr-2" />
-                    Mute User
-                  </DropdownMenuItem>
-                )}
-                {isHost && !isOwn && onKickUser && (
-                  <DropdownMenuItem onClick={onKickUser} className="text-destructive">
-                    <UserX className="w-4 h-4 mr-2" />
-                    Kick & Ban
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+
         </div>
       </div>
 
-      {/* Time for own messages - below bubble */}
+      {/* Time for own messages - hidden to match mockup */}
+      {/*
       {isOwn && (
         <span className="text-[10px] text-mono-500 mt-1 mr-2">{time}</span>
       )}
+      */}
     </div>
   );
 };

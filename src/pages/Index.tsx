@@ -1,28 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Logo } from '@/components/shareroom/Logo';
 import { UsernameForm } from '@/components/shareroom/UsernameForm';
 import { RoomOptions } from '@/components/shareroom/RoomOptions';
-import { RoomCreated } from '@/components/shareroom/RoomCreated';
-import { SplineBackground } from '@/components/shareroom/SplineBackground';
 import { getFingerprint, generateRoomCode } from '@/lib/fingerprint';
 
-import { Button } from '@/components/ui/button';
 import { FlipWordsDemo } from '@/components/ui/flip-words-demo';
-import { Typewriter } from '@/components/ui/typewriter';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft } from 'lucide-react';
+import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
 
 
-type Step = 'username' | 'options' | 'created';
+type Step = 'username' | 'options';
+type OptionsMode = 'choose' | 'join' | 'created';
 
 const Index = () => {
   const [step, setStep] = useState<Step>('username');
+  const [optionsMode, setOptionsMode] = useState<OptionsMode>('choose');
   const [username, setUsername] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [joinCode, setJoinCode] = useState<string | null>(null);
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -42,29 +39,6 @@ const Index = () => {
     }
   }, []);
 
-  // Handle page load
-  useEffect(() => {
-    let mounted = true;
-
-    const checkLoaded = () => {
-      if (!mounted) return;
-
-      if (document.readyState === 'complete') {
-        setTimeout(() => {
-          if (mounted) setIsPageLoaded(true);
-        }, 1500);
-      } else {
-        setTimeout(checkLoaded, 100);
-      }
-    };
-
-    checkLoaded();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   const handleUsernameSubmit = (name: string) => {
     setUsername(name);
     localStorage.setItem('shareroom_username', name);
@@ -74,6 +48,7 @@ const Index = () => {
       navigate(`/room/${joinCode}?username=${encodeURIComponent(name)}`);
     } else {
       setStep('options');
+      setOptionsMode('choose');
     }
   };
 
@@ -96,7 +71,7 @@ const Index = () => {
       if (error) throw error;
 
       setRoomCode(newRoom.code);
-      setStep('created');
+      setOptionsMode('created');
     } catch (err) {
       console.error('Failed to create room:', err);
     } finally {
@@ -112,80 +87,134 @@ const Index = () => {
     navigate(`/room/${roomCode}?username=${encodeURIComponent(username)}`);
   };
 
+  const handleBack = () => {
+    if (step === 'options') {
+      if (optionsMode === 'join' || optionsMode === 'created') {
+        setOptionsMode('choose');
+        setRoomCode('');
+      } else {
+        setStep('username');
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-neutral-900 to-neutral-700 relative overflow-hidden">
-      {/* Spline 3D Background */}
-      <SplineBackground />
+    <div
+      className="min-h-screen w-full relative overflow-x-hidden bg-cover bg-center bg-no-repeat flex flex-col justify-between"
+      style={{ backgroundImage: "url('/bg-image.png')" }}
+    >
+      {/* Top Bar: Back Button when not on initial step */}
+      <header className="relative z-20 w-full flex items-center justify-between px-8 sm:px-12 lg:px-16 pt-8 sm:pt-10 shrink-0 min-h-[64px]">
+        {step !== 'username' ? (
+          <button
+            onClick={handleBack}
+            aria-label="Go back"
+            className="flex items-center gap-2 text-[#0c1524] hover:text-[#475467] active:scale-95 transition-all cursor-pointer font-sans font-medium text-sm sm:text-base group select-none"
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#f7f5ef] hover:bg-[#eeebe3] flex items-center justify-center shadow-sm transition-all group-hover:-translate-x-0.5">
+              <ArrowLeft className="w-4 h-4 text-[#0c1524]" strokeWidth="2.2" />
+            </div>
+            <span className=" font-medium text-[#0c1524]">Back</span>
+          </button>
+        ) : (
+          <div />
+        )}
+      </header>
 
-      <div className="flex flex-col min-h-screen">
-
-        {/* Header */}
-        <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 shrink-0">
-          <Logo size="md" />
-        </header>
-
-        {/* Main content */}
-        <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8 min-h-0">
-          <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg flex flex-col items-center gap-6 sm:gap-8">
-            {/* Hero section */}
-            {step === 'username' && (
-              <div className="text-center space-y-6 sm:space-y-6 animate-fade-in w-full px-4 sm:px-0">
-                <h1 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-mono-900 leading-tight px-0 sm:px-2">
-                  <span className="block sm:hidden text-center px-2 overflow-hidden"><Typewriter text="Share code and files instantly." speed={150} /></span>
-                  <span className="hidden sm:block"><FlipWordsDemo /></span>
-                </h1>
-                <p className="text-white/90 text-sm sm:text-base lg:text-lg max-w-md mx-auto px-0 sm:px-4 leading-relaxed">
-                  Create temporary chat rooms. No signup required.
-                </p>
-              </div>
-            )}
-
-            {step === 'options' && (
-              <div className="text-center animate-fade-in w-full">
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 truncate whitespace-nowrap overflow-hidden">
-                  <span className="text-white font-normal">Welcome, </span><Typewriter text={username} className="font-bold" speed={150} />
-                </p>
-              </div>
-            )}
-
-            {/* Step content */}
-            {step === 'username' && (
-              <UsernameForm onSubmit={handleUsernameSubmit} initialValue={username} />
-            )}
-
-            {step === 'options' && (
-              <RoomOptions
-                onCreateRoom={handleCreateRoom}
-                onJoinRoom={handleJoinRoom}
-                loading={loading}
-              />
-            )}
-
-            {step === 'created' && (
-              <RoomCreated roomCode={roomCode} onGoToRoom={handleGoToRoom} />
-            )}
-
-            {/* Back button */}
-            {step === 'options' && (
-              <div className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg smooth-transition">
-                <button
-                  onClick={() => setStep('username')}
-                  className="h-7 w-7 rounded-full flex items-center justify-center text-white hover:text-white/80 transition-colors"
+      {/* Main Content Area */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-6 sm:pt-10 pb-16 min-h-0">
+        <div className="w-full max-w-4xl flex flex-col items-center">
+          <LayoutGroup id="room-selection-flow">
+            {step === 'username' ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="step-username"
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full flex flex-col items-center"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-                  </svg>
-                </button>
-              </div>
-            )}
-          </div>
-        </main>
+                  {/* H1 Heading - Scaled down nicely for desktop */}
+                  <h1
+                    className="font-sans font-medium text-center tracking-[-0.06em] flex flex-col items-center select-none"
+                    style={{
+                      fontSize: 'clamp(36px, 4.4vw, 64px)',
+                      lineHeight: '1.04',
+                      letterSpacing: '-0.06em',
+                    }}
+                  >
+                    <span className="text-[#0c1524] block">
+                      <FlipWordsDemo />
+                    </span>
+                    <span className="text-[#667085] block font-normal sm:font-medium">
+                      and anonymously
+                    </span>
+                  </h1>
 
-        {/* Footer */}
-        <footer className="relative z-10 text-center p-4 text-xs text-mono-400 shrink-0">
-          <p className="hidden sm:block">Press ESC twice to panic close</p>
-        </footer>
-      </div>
+                  {/* Gap to Body */}
+                  <p
+                    className="mt-5 sm:mt-6 font-sans font-normal text-[#475467] text-center max-w-[480px] mx-auto leading-relaxed px-2"
+                    style={{
+                      fontSize: 'clamp(14px, 1.2vw, 17px)',
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    Create temporary chat rooms for sharing files, images, code snippets, and documents. No signup required.
+                  </p>
+
+                  {/* Gap to Input */}
+                  <div className="mt-8 sm:mt-9 w-full flex justify-center px-2">
+                    <UsernameForm onSubmit={handleUsernameSubmit} initialValue={username} />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <motion.div
+                key="step-options"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full flex flex-col items-center text-center"
+              >
+                <div className="select-none">
+                  <p className="font-sans font-normal text-[#667085] text-base sm:text-lg tracking-[-0.01em]">
+                    Good to see you,
+                  </p>
+                  <h2
+                    className="mt-1 font-sans font-medium text-[#0c1524] tracking-[-0.05em] leading-tight"
+                    style={{
+                      fontSize: 'clamp(40px, 5.2vw, 68px)',
+                    }}
+                  >
+                    {username}
+                  </h2>
+                  <p className="mt-2 font-sans font-normal text-[#667085] text-sm sm:text-base tracking-[-0.01em]">
+                    What would you like to do today?
+                  </p>
+                </div>
+
+                {/* Buttons Row / In-Place Morphed Pill Bar */}
+                <div className="mt-8 sm:mt-10 w-full flex justify-center">
+                  <RoomOptions
+                    onCreateRoom={handleCreateRoom}
+                    onJoinRoom={handleJoinRoom}
+                    onGoToRoom={handleGoToRoom}
+                    mode={optionsMode}
+                    setMode={setOptionsMode}
+                    createdRoomCode={roomCode}
+                    loading={loading}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </LayoutGroup>
+        </div>
+      </main>
+
+      {/* Bottom spacer to keep main centered without moving anything */}
+      <footer className="relative z-20 w-full shrink-0 min-h-[64px] pb-8 sm:pb-10 px-8 sm:px-12 lg:px-16 pointer-events-none" />
     </div>
   );
 };

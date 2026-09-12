@@ -60,7 +60,7 @@ export const ParticipantsList = ({
                 }`}
               >
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  <div className={`avatar-md rounded-full font-bold ${isParticipantHost ? 'avatar-host' : 'bg-mono-300 text-mono-700'}`}>
+                  <div className={`avatar-md rounded-full font-semibold ${isParticipantHost ? 'avatar-host' : 'bg-mono-300 text-mono-700'}`}>
                     {p.username[0].toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
